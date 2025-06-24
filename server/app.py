@@ -26,7 +26,7 @@ def create_app():
     app.config.from_prefixed_env() 
 
     db.init_app(app)
-    migrate.init(app, db)
+    migrate.init_app(app, db)
     api = Api(app)
     jwt.init_app(app)
 
@@ -50,7 +50,7 @@ def create_app():
     api.add_resource(MyApplications,'/my-applications')
  
    #  admin applications
-    api.add_resource(AllApplications,'admin/applications')
+    api.add_resource(AllApplications,'/admin/applications')
     api.add_resource(PendingApplications, "/admin/applications/pending")
     api.add_resource(EligibleApplications, "/admin/applications/eligible")
     api.add_resource(ApplicationUpdate, "/admin/applications/<int:id>/update")
@@ -59,7 +59,7 @@ def create_app():
    
    # programmes
     api.add_resource(ProgrammeList,'/programmes')
-    api.add_resource(ProgrammCreate,'admin/programmes/create') 
+    api.add_resource(ProgrammCreate,'/admin/programmes/create') 
    
     
     return app
