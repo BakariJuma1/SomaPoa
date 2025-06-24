@@ -4,7 +4,7 @@ from server.extension import db
 from server.models.user import User
 from flask import request
 from datetime import timedelta
-from flask import jsonify
+from flask import make_response,jsonify
 
 
 
@@ -20,17 +20,21 @@ class Login(Resource):
         username = data['username']
         password = data['password']
 
-        user = User.query.filter_by(email=username).first()
+        user = User.query.filter_by(username=username).first()
 
         if user and user.check_password(password):
-            access_token =create_access_token={"id":user.id,"role":user.role}
-            response = jsonify(
+            access_token =create_access_token(
+                identity={"id":user.id,"role":user.role},
+                expires_delta=timedelta(hours=1)
+                
+                )
+            response =make_response(jsonify(
                 {
                 "message":"Login succesfull",
                 "access_token":access_token
                 }
-                )
+             ) )
             # stores the token as a cookie 
             set_access_cookies(response,access_token)
-            return response,200
+            return response
         return {"error":"Invalid Credentials"},401

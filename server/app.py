@@ -26,6 +26,8 @@ def create_app():
     app = Flask(__name__)
     app.config.from_prefixed_env() 
 
+    app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY')
+
     db.init_app(app)
     migrate.init_app(app, db)
     api = Api(app)
