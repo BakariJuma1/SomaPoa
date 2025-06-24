@@ -2,7 +2,7 @@ from flask_restful import Resource
 from flask_jwt_extended import create_access_token
 from server.extension import db
 from server.models.user import User
-from flask import request, jsonify
+from flask import request
 from datetime import timedelta
 
 
