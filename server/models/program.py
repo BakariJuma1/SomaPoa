@@ -12,7 +12,9 @@ class Program(db.Model,SerializerMixin):
     program_name=db.Column(db.String(),nullable=False)
     ward=db.Column(db.String(),nullable=False)
     year = db.Column(db.Integer,default=lambda: datetime.now().year)
-
-    applications= db.relationship('Application',back_populates='program',lazy=True)
+    description = db.Column(db.String(),nullable=False)
+    deadline = db.Column(db.Date,nullable=False)
+  
+    applications= db.relationship('Application',back_populates='program',lazy=True,cascade="all, delete")
     serialize_rules= ("-program.applications",)
 

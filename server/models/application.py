@@ -13,10 +13,15 @@ class Application(db.Model,SerializerMixin):
     level_of_study=db.Column(db.String(),nullable=False)
     average_grade=db.Column(db.String(),nullable=False)
     household_income=db.Column(db.String,nullable=False)
-    status=db.Column(db.Boolean(),default=False)
+    status=db.Column(db.Boolean(),default='pending')
+    submission_date = db.Column(db.DateTime,server_default=db.func.now())
 
     student = db.relationship("User",back_populates='applications')
     program = db.relationship('Program',back_populates ='applications')
     serialize_rules= ("-applications.student","-applications.program")
 
-    
+    # Ensure that a user can only apply to a programme once
+    # This is enforced at the database level with a unique constraint   
+    __table_args__ = (
+    db.UniqueConstraint('student_id', 'program_id', name='unique_student_programme'),
+   )
