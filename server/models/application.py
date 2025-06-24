@@ -1,4 +1,5 @@
-from .db import db
+from server.extension import db
+
 from sqlalchemy_serializer import SerializerMixin
 
 class Application(db.Model,SerializerMixin):

@@ -3,18 +3,25 @@ from flask_migrate import Migrate
 from flask_restful import Api, Resource  
 from dotenv import load_dotenv
 from .models import db,User,Program,Application
-# from .controllers import controller
+from server.extension import db, migrate, jwt
 
 
 load_dotenv()
 
-app = Flask(__name__)
-# Loads from FLASK_SQLALCHEMY_DATABASE_URI and others
-app.config.from_prefixed_env()  
 
-db.init_app(app)
-migrate = Migrate(app, db)
+def create_app():
+    app = Flask(__name__)
+    app.config.from_prefixed_env() 
 
-@app.route('/')
-def home():
-    return 'Home'
+    db.init_app(app)
+    migrate = Migrate(app, db)
+    api = Api(app)
+    jwt.init_app(app)
+    
+
+    @app.route('/')
+    def home():
+       return {"message": "Welcome to Somapoa  API",}
+    
+
+    return app
