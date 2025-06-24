@@ -16,5 +16,5 @@ class Program(db.Model,SerializerMixin):
     deadline = db.Column(db.Date,nullable=False)
   
     applications= db.relationship('Application',back_populates='program',lazy=True,cascade="all, delete")
-    serialize_rules= ("-program.applications",)
+    serialize_rules= ("-applications.program",)
 

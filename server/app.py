@@ -1,3 +1,4 @@
+import os
 from flask import Flask,request
 from flask_migrate import Migrate
 from flask_restful import Api, Resource  
@@ -32,6 +33,10 @@ def create_app():
 
    #  CRSF protection for cookies
     app.config['JWT_COOKIE_CSRF_PROTECT']= True
+
+    # specific folders
+    os.makedirs("server/uploads/income", exist_ok=True)
+    os.makedirs("server/uploads/academic", exist_ok=True)
     
 
     @app.route('/')

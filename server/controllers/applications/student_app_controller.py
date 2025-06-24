@@ -5,6 +5,8 @@ from server.models.application import Application
 from server.models.program import Program
 from server.extension import db
 from datetime import datetime
+from werkzeug.utils import secure_filename
+import os
 
 # only students can apply
 class ApplicationResource(Resource):
@@ -17,6 +19,24 @@ class ApplicationResource(Resource):
 
         student_id = identity["id"]
         data = request.get_json()
+
+        # get files from request
+        income_file = request.files.get('income_proof')
+        academic_file = request.files.get('academic_proof')
+
+        if not income_file or not academic_file:
+            return{"error":"Both proof documents are required"}
+        
+        # save files securely
+        income_filename = secure_filename(income_file.filename)
+        academic_filename = secure_filename(academic_file.filename)
+
+        income_path = os.path.join('server/uploads/income',income_filename)
+        academic_path = os.path.join("server/uploads/academic", academic_filename)
+
+        income_file.save(income_path)
+        academic_file.save(academic_path)
+
 
         # Required fields
         required_fields = [
@@ -48,8 +68,8 @@ class ApplicationResource(Resource):
             kcse_grade=data.get("kcse_grade"),
             gpa=data.get("gpa"),
             household_income=data["household_income"],
-            income_proof_url=data.get("income_proof_url"),
-            academic_proof_url=data.get("academic_proof_url"),
+            income_proof_url=income_path,
+            academic_proof_url=academic_path,
         )
 
         # Auto-score application

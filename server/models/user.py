@@ -15,7 +15,7 @@ class User(db.Model,SerializerMixin):
     created_at = db.Column(db.Date)
 
     applications = db.relationship("Application",back_populates='student')
-    serialize_rules= ("-applications.user",)
+    serialize_rules= ("-applications.student",)
 
     def set_password(self,password):
         self.password_hash = generate_password_hash(password)
