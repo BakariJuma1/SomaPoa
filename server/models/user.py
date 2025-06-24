@@ -9,9 +9,9 @@ class User(db.Model,SerializerMixin):
 
     id = db.Column(db.Integer,primary_key=True)
     username = db.Column(db.String,nullable=False)
-    email  = db.Column(db.Integer,unique=True)
+    email  = db.Column(db.String,unique=True,nullable=False)
     password_hash = db.Column(db.String,nullable=False)
-    role = db.Column(db.String,default='student')
+    role = db.Column(db.String,default='student',nullable=False)
     created_at = db.Column(db.Date)
 
     applications = db.relationship("Application",back_populates='student')
