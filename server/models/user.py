@@ -8,6 +8,7 @@ class User(db.Model,SerializerMixin):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer,primary_key=True)
+    username = db.Column(db.String,nullable=False)
     email  = db.Column(db.Integer,unique=True)
     password_hash = db.Column(db.String,nullable=False)
     role = db.Column(db.String,default='student')

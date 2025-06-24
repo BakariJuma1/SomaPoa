@@ -4,6 +4,7 @@ from flask_restful import Api, Resource
 from dotenv import load_dotenv
 from .models import db,User,Program,Application
 from server.extension import db, migrate, jwt
+from server.controllers.auth import Register,Login
 
 
 load_dotenv()
@@ -23,5 +24,8 @@ def create_app():
     def home():
        return {"message": "Welcome to Somapoa  API",}
     
+
+    api.add_resource(Register,"/register")
+    api.add_resource(Login,'/login')
 
     return app
