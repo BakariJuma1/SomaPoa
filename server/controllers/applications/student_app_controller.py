@@ -92,7 +92,7 @@ class ApplicationResource(Resource):
         
 # students can see their applications        
 class MyApplications(Resource):
-    @jwt_required
+    @jwt_required(git a)
     def get(self):
         identity = get_jwt_identity()
 

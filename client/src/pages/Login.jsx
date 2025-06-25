@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useAuthFetch from "../hooks/useAuthFetch"; // 👈 import the hook
+import useAuthFetch from "../hooks/useAuthFetch"; 
 import "../assets/styles/login.css";
 
 const Login = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const authFetch = useAuthFetch(); // 👈 use the hook
+  const authFetch = useAuthFetch(); // hook
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -26,7 +26,7 @@ const Login = () => {
 
       if (!res.ok) throw new Error("Invalid credentials");
 
-      // Optional: test session immediately by calling a protected route
+      
       const testRes = await authFetch("http://localhost:5555/my-applications");
 
       if (testRes.ok) {
