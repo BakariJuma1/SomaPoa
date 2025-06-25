@@ -92,8 +92,9 @@ class ApplicationResource(Resource):
         
 # students can see their applications        
 class MyApplications(Resource):
-    @jwt_required(git a)
+    @jwt_required()
     def get(self):
+      try:  
         identity = get_jwt_identity()
 
         if identity['role'] != 'student':
@@ -114,4 +115,7 @@ class MyApplications(Resource):
             })
 
         return result, 200
+      except Exception as e:
+        print(" Error in /my-applications:", e)  
+        return {"error": "Something went wrong"}, 500
 
