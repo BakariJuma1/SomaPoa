@@ -17,6 +17,10 @@ from server.controllers.applications.admin_app_controller import AllApplications
 from server.controllers.programmes.programme_controller import ProgrammeList,ProgrammCreate
 # users
 from server.controllers.users.users_controller import UserProfile,AllUsers
+from flask_cors import CORS
+# refresh
+from server.controllers.auth.refresh_controller import RefreshToken
+from datetime import timedelta
 
 
 load_dotenv()
@@ -24,9 +28,25 @@ load_dotenv()
 
 def create_app():
     app = Flask(__name__)
+    # set the route 
+    CORS(app,
+         supports_credentials=True,
+         origins=["http://localhost:5173"]
+         )
     app.config.from_prefixed_env() 
 
     app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY')
+    app.config['JWT_SECRET_KEY'] = os.getenv("JWT_SECRET_KEY")
+    app.config['JWT_TOKEN_LOCATION'] = ["cookies"]
+    app.config['JWT_ACCESS_COOKIE_NAME'] = os.getenv("JWT_ACCESS_COOKIE_NAME", "access_token")
+    app.config['JWT_COOKIE_SECURE'] = os.getenv("JWT_COOKIE_SECURE", "False").lower() == "true"
+    app.config['JWT_COOKIE_HTTPONLY'] = os.getenv("JWT_COOKIE_HTTPONLY", "True").lower() == "true"
+    app.config['JWT_COOKIE_SAMESITE'] = os.getenv("JWT_COOKIE_SAMESITE", "Lax")
+    app.config['JWT_COOKIE_CSRF_PROTECT'] = os.getenv("JWT_COOKIE_CSRF_PROTECT", "False").lower() == "true"
+
+    # Handle expiration durations
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(seconds=int(os.getenv("JWT_ACCESS_TOKEN_EXPIRES", 900)))
+    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(seconds=int(os.getenv("JWT_REFRESH_TOKEN_EXPIRES", 604800)))
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -50,6 +70,7 @@ def create_app():
     api.add_resource(Login,'/login')
     api.add_resource(Register,'/register')
     api.add_resource(Logout,'/logout')
+    api.add_resource(RefreshToken,'/refresh')
 
 
    #  student applications
