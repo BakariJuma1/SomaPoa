@@ -7,6 +7,9 @@ import AdminDashboard from './pages/AdminDashboard'
 import ApplyForm from './pages/ApplyForm'
 import MyApplications from './pages/MyApplications'
 import Navbar from './components/Navbar'
+import Unauthorized from './pages/Unauthorized'
+import RequireAuth from './components/RequireAuth'
+import Apply from './pages/Apply'
 
 function App() {
   return (
@@ -16,10 +19,52 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<StudentDashboard />} />
-        <Route path="/my-applications" element={<MyApplications />} />
-        <Route path="/apply/:id" element={<ApplyForm />} />
-        <Route path="/admin/applications" element={<AdminDashboard />} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
+
+        {/* Protected Student Routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <RequireAuth roles={['student']}>
+              <StudentDashboard />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/my-applications"
+          element={
+            <RequireAuth roles={['student']}>
+              <MyApplications />
+            </RequireAuth>
+          }
+        />
+          {/* ✅ Protected Apply route */}
+        <Route
+          path="/apply"
+          element={
+            <RequireAuth roles={['student']}>
+              <Apply />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/apply/:id"
+          element={
+            <RequireAuth roles={['student']}>
+              <ApplyForm />
+            </RequireAuth>
+          }
+        />
+
+        {/* Protected Admin Routes */}
+        <Route
+          path="/admin/applications"
+          element={
+            <RequireAuth roles={['admin']}>
+              <AdminDashboard />
+            </RequireAuth>
+          }
+        />
       </Routes>
     </>
   )

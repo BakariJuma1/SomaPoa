@@ -1,0 +1,20 @@
+.container {
+  padding: 2rem;
+}
+
+.app-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.app-table th,
+.app-table td {
+  border: 1px solid #ccc;
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.app-table th {
+  background-color: #f0f0f0;
+}

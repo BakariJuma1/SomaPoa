@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import "../assets/styles/home.css"; // Adjust the path based on your structure
+import "../assets/styles/home.css"; 
 
 const Home = () => {
   const [programmes, setProgrammes] = useState([]);
