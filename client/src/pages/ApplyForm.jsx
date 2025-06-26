@@ -7,6 +7,7 @@ const ApplyForm = () => {
   const navigate = useNavigate()
 
   const [program, setProgram] = useState(null)
+  const [loading, setLoading] = useState(true)
   const [formData, setFormData] = useState({
     school_name: '',
     ward: '',
@@ -19,18 +20,28 @@ const ApplyForm = () => {
     income_proof: null
   })
 
-  const [message, setMessage] = useState('')
+  const [errors, setErrors] = useState({
+    academic_proof: '',
+    income_proof: ''
+  })
+  const [message, setMessage] = useState({ text: '', type: '' })
 
   useEffect(() => {
     fetch(`http://localhost:5555/programmes/${id}`, {
-      credentials: 'include' // ✅ include JWT cookie
+      credentials: 'include'
     })
       .then(res => {
-        if (!res.ok) throw new Error("Unauthorized")
+        if (!res.ok) throw new Error("Failed to load programme")
         return res.json()
       })
-      .then(data => setProgram(data))
-      .catch(() => setMessage('Failed to load programme info'))
+      .then(data => {
+        setProgram(data)
+        setLoading(false)
+      })
+      .catch((err) => {
+        setMessage({ text: err.message || 'Failed to load programme info', type: 'error' })
+        setLoading(false)
+      })
   }, [id])
 
   const handleChange = e => {
@@ -47,97 +58,286 @@ const ApplyForm = () => {
       ...prev,
       [name]: files[0]
     }))
+    // Clear error when file is selected
+    setErrors(prev => ({
+      ...prev,
+      [name]: ''
+    }))
+  }
+
+  const validateForm = () => {
+    const newErrors = {}
+    let isValid = true
+
+    if (!formData.academic_proof) {
+      newErrors.academic_proof = 'Academic proof is required'
+      isValid = false
+    }
+    if (!formData.income_proof) {
+      newErrors.income_proof = 'Income proof is required'
+      isValid = false
+    }
+
+    setErrors(newErrors)
+    return isValid
   }
 
   const handleSubmit = async e => {
     e.preventDefault()
+    setMessage({ text: '', type: '' })
+
+    if (!validateForm()) {
+      return
+    }
 
     const data = new FormData()
     data.append('program_id', id)
-    data.append('school_name', formData.school_name)
-    data.append('ward', formData.ward)
-    data.append('education_level', formData.education_level)
-    data.append('kcpe_score', formData.kcpe_score)
-    data.append('kcse_grade', formData.kcse_grade)
-    data.append('gpa', formData.gpa)
-    data.append('household_income', formData.household_income)
-    data.append('academic_proof', formData.academic_proof)
-    data.append('income_proof', formData.income_proof)
+    Object.entries(formData).forEach(([key, value]) => {
+      if (value !== null && value !== '') {
+        data.append(key, value)
+      }
+    })
 
     try {
       const res = await fetch('http://localhost:5555/applications', {
         method: 'POST',
         body: data,
-        credentials: 'include' // ✅ ensures token is sent
+        credentials: 'include'
       })
 
       if (res.ok) {
-        setMessage('Application submitted ✅')
-        navigate('/my-applications')
+        setMessage({ text: 'Application submitted successfully!', type: 'success' })
+        setTimeout(() => navigate('/my-applications'), 1500)
       } else {
         const error = await res.json()
-        setMessage(error.error || 'Submission failed')
+        throw new Error(error.error || 'Submission failed')
       }
     } catch (err) {
-      console.error(err)
-      setMessage('Something went wrong!')
+      setMessage({ text: err.message || 'Something went wrong!', type: 'error' })
     }
   }
 
-  if (!program) return <p>Loading programme info...</p>
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="spinner"></div>
+        <p>Loading programme information...</p>
+      </div>
+    )
+  }
+
+  if (!program) {
+    return (
+      <div className="error-container">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+        <h3>Unable to load programme</h3>
+        <p>{message.text}</p>
+        <button onClick={() => navigate('/apply')} className="back-button">
+          Back to Programmes
+        </button>
+      </div>
+    )
+  }
 
   return (
-    <div className="apply-form">
-      <h2>Apply for: {program.name}</h2>
-      <form onSubmit={handleSubmit} encType="multipart/form-data">
-        <label>School Name:</label>
-        <input name="school_name" value={formData.school_name} onChange={handleChange} required />
+    <div className="apply-form-container">
+      <div className="form-header">
+        <button onClick={() => navigate(-1)} className="back-button">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M19 12H5M12 19l-7-7 7-7" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          Back
+        </button>
+        <h1>Apply for Bursary</h1>
+        <div className="program-info">
+          <h2>{program.name}</h2>
+          <p>Deadline: {new Date(program.deadline).toLocaleDateString()}</p>
+        </div>
+      </div>
 
-        <label>Ward:</label>
-        <input name="ward" value={formData.ward} onChange={handleChange} required />
+      {message.text && (
+        <div className={`alert-message ${message.type}`}>
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            {message.type === 'success' ? (
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            ) : (
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            )}
+          </svg>
+          <span>{message.text}</span>
+        </div>
+      )}
 
-        <label>Education Level:</label>
-        <select name="education_level" value={formData.education_level} onChange={handleChange} required>
-          <option value="">-- Select --</option>
-          <option value="primary">Primary</option>
-          <option value="secondary">Secondary</option>
-          <option value="university">University</option>
-        </select>
+      <form onSubmit={handleSubmit} className="application-form" noValidate>
+        <div className="form-section">
+          <h3>Personal Information</h3>
+          <div className="form-grid">
+            <div className="form-group">
+              <label htmlFor="school_name">School Name</label>
+              <input
+                id="school_name"
+                name="school_name"
+                type="text"
+                value={formData.school_name}
+                onChange={handleChange}
+                required
+              />
+            </div>
 
-        {formData.education_level === 'primary' && (
-          <>
-            <label>K.C.P.E Score:</label>
-            <input name="kcpe_score" type="number" onChange={handleChange} />
-          </>
-        )}
+            <div className="form-group">
+              <label htmlFor="ward">Ward</label>
+              <input
+                id="ward"
+                name="ward"
+                type="text"
+                value={formData.ward}
+                onChange={handleChange}
+                required
+              />
+            </div>
 
-        {formData.education_level === 'secondary' && (
-          <>
-            <label>K.C.S.E Grade:</label>
-            <input name="kcse_grade" onChange={handleChange} />
-          </>
-        )}
+            <div className="form-group">
+              <label htmlFor="education_level">Education Level</label>
+              <select
+                id="education_level"
+                name="education_level"
+                value={formData.education_level}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Education Level</option>
+                <option value="primary">Primary School</option>
+                <option value="secondary">Secondary School</option>
+                <option value="university">University/College</option>
+              </select>
+            </div>
 
-        {formData.education_level === 'university' && (
-          <>
-            <label>GPA:</label>
-            <input name="gpa" step="0.1" onChange={handleChange} />
-          </>
-        )}
+            <div className="form-group">
+              <label htmlFor="household_income">Household Income (KES)</label>
+              <input
+                id="household_income"
+                name="household_income"
+                type="number"
+                value={formData.household_income}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          </div>
+        </div>
 
-        <label>Household Income (KES):</label>
-        <input name="household_income" onChange={handleChange} required />
+        <div className="form-section">
+          <h3>Academic Information</h3>
+          <div className="form-grid">
+            {formData.education_level === 'primary' && (
+              <div className="form-group">
+                <label htmlFor="kcpe_score">K.C.P.E Score</label>
+                <input
+                  id="kcpe_score"
+                  name="kcpe_score"
+                  type="number"
+                  min="0"
+                  max="500"
+                  value={formData.kcpe_score}
+                  onChange={handleChange}
+                />
+              </div>
+            )}
 
-        <label>Academic Proof (PDF/Image):</label>
-        <input type="file" name="academic_proof" onChange={handleFileChange} required />
+            {formData.education_level === 'secondary' && (
+              <div className="form-group">
+                <label htmlFor="kcse_grade">K.C.S.E Grade</label>
+                <input
+                  id="kcse_grade"
+                  name="kcse_grade"
+                  type="text"
+                  value={formData.kcse_grade}
+                  onChange={handleChange}
+                />
+              </div>
+            )}
 
-        <label>Income Proof (PDF/Image):</label>
-        <input type="file" name="income_proof" onChange={handleFileChange} required />
+            {formData.education_level === 'university' && (
+              <div className="form-group">
+                <label htmlFor="gpa">GPA</label>
+                <input
+                  id="gpa"
+                  name="gpa"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="4"
+                  value={formData.gpa}
+                  onChange={handleChange}
+                />
+              </div>
+            )}
+          </div>
+        </div>
 
-        <button type="submit">Submit Application</button>
+        <div className="form-section">
+          <h3>Document Upload</h3>
+          <div className="form-grid">
+            <div className="form-group">
+              <label htmlFor="academic_proof">Academic Proof</label>
+              <div className="file-upload-container">
+                <label htmlFor="academic_proof" className="file-upload-label">
+                  {formData.academic_proof ? (
+                    <span>{formData.academic_proof.name}</span>
+                  ) : (
+                    <span>Choose file (PDF or Image)</span>
+                  )}
+                  <input
+                    id="academic_proof"
+                    name="academic_proof"
+                    type="file"
+                    onChange={handleFileChange}
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    className="file-input"
+                  />
+                </label>
+                {errors.academic_proof && (
+                  <div className="error-message">{errors.academic_proof}</div>
+                )}
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="income_proof">Income Proof</label>
+              <div className="file-upload-container">
+                <label htmlFor="income_proof" className="file-upload-label">
+                  {formData.income_proof ? (
+                    <span>{formData.income_proof.name}</span>
+                  ) : (
+                    <span>Choose file (PDF or Image)</span>
+                  )}
+                  <input
+                    id="income_proof"
+                    name="income_proof"
+                    type="file"
+                    onChange={handleFileChange}
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    className="file-input"
+                  />
+                </label>
+                {errors.income_proof && (
+                  <div className="error-message">{errors.income_proof}</div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="form-actions">
+          <button type="submit" className="submit-button">
+            Submit Application
+          </button>
+        </div>
       </form>
-
-      {message && <p>{message}</p>}
     </div>
   )
 }
