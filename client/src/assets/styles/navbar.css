@@ -29,3 +29,8 @@
 .nav-links button:hover {
   text-decoration: underline;
 }
+.navbar .nav-links a.active {
+  font-weight: bold;
+  color: #007bff;
+  border-bottom: 2px solid #007bff;
+}

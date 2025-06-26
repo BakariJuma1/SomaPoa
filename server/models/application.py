@@ -87,5 +87,5 @@ class Application(db.Model,SerializerMixin):
 
        self.score = score
        self.is_eligible = score >= 70
-       self.status = 'approved' if self.is_eligible else 'pending'   
+       self.status = 'pending' 
 

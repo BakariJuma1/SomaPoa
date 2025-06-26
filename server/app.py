@@ -14,14 +14,14 @@ from server.controllers.applications.student_app_controller import ApplicationRe
 from server.controllers.applications.admin_app_controller import AllApplications,ApplicationUpdate,DeleteApplication,EligibleApplications,PendingApplications,AwardBursary
 
 # programmes
-from server.controllers.programmes.programme_controller import ProgrammeList,ProgrammCreate
+from server.controllers.programmes.programme_controller import ProgrammeList,ProgrammCreate,ProgrammeDetail
 # users
 from server.controllers.users.users_controller import UserProfile,AllUsers
 from flask_cors import CORS
 # refresh
 from server.controllers.auth.refresh_controller import RefreshToken
 from datetime import timedelta
-
+from server.controllers.auth.me_controller import Me
 
 load_dotenv()
 
@@ -36,13 +36,13 @@ def create_app():
     app.config.from_prefixed_env() 
 
     app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY')
-    app.config['JWT_SECRET_KEY'] = os.getenv("JWT_SECRET_KEY")
+    # app.config['JWT_SECRET_KEY'] = os.getenv("JWT_SECRET_KEY")
     app.config['JWT_TOKEN_LOCATION'] = ["cookies"]
     app.config['JWT_ACCESS_COOKIE_NAME'] = os.getenv("JWT_ACCESS_COOKIE_NAME", "access_token")
     app.config['JWT_COOKIE_SECURE'] = os.getenv("JWT_COOKIE_SECURE", "False").lower() == "true"
     app.config['JWT_COOKIE_HTTPONLY'] = os.getenv("JWT_COOKIE_HTTPONLY", "True").lower() == "true"
     app.config['JWT_COOKIE_SAMESITE'] = os.getenv("JWT_COOKIE_SAMESITE", "Lax")
-    app.config['JWT_COOKIE_CSRF_PROTECT'] = os.getenv("JWT_COOKIE_CSRF_PROTECT", "False").lower() == "true"
+    # app.config['JWT_COOKIE_CSRF_PROTECT'] = os.getenv("JWT_COOKIE_CSRF_PROTECT", "False").lower() == "true"
 
     # Handle expiration durations
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(seconds=int(os.getenv("JWT_ACCESS_TOKEN_EXPIRES", 900)))
@@ -54,7 +54,7 @@ def create_app():
     jwt.init_app(app)
 
    #  CRSF protection for cookies
-    app.config['JWT_COOKIE_CSRF_PROTECT']= True
+    app.config['JWT_COOKIE_CSRF_PROTECT']= False
 
     # specific folders
     os.makedirs("server/uploads/income", exist_ok=True)
@@ -71,6 +71,7 @@ def create_app():
     api.add_resource(Register,'/register')
     api.add_resource(Logout,'/logout')
     api.add_resource(RefreshToken,'/refresh')
+    api.add_resource(Me,'/me')
 
 
    #  student applications
@@ -88,6 +89,7 @@ def create_app():
    # programmes
     api.add_resource(ProgrammeList,'/programmes')
     api.add_resource(ProgrammCreate,'/admin/programmes/create') 
+    api.add_resource(ProgrammeDetail,'/programmes/<int:id>')
    
     
     return app

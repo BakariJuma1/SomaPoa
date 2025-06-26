@@ -11,6 +11,17 @@ class ProgrammeList(Resource):
 
         return[p.to_dict() for p in programmes],200
 
+class ProgrammeDetail(Resource): 
+    @jwt_required()
+    def get(self, id):
+        identity = get_jwt_identity()
+       
+        program = Program.query.get(id)
+        if not program:
+            return {"error": "Programme not found"}, 404
+
+        return program.to_dict(), 200   
+
 # only admins can create a programme  requires aunthentication 
 class ProgrammCreate(Resource):
     @jwt_required
@@ -26,6 +37,7 @@ class ProgrammCreate(Resource):
         year = data.get_json('year')
         description = data.get_json('description')
         deadline = data.get_json('deadline')
+        image_url = data.get("image_url")
 
         if not program_name or not deadline:
             return {"error":"Name and deadline are required"},400

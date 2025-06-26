@@ -7,4 +7,4 @@ class Logout(Resource):
     def post(self):
         response = jsonify({"message": "Logged out successfully"})
         unset_jwt_cookies(response)
-        return response, 200
+        return response

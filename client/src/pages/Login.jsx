@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useAuthFetch from "../hooks/useAuthFetch"; 
+import useAuthFetch from "../hooks/useAuthFetch";
 import "../assets/styles/login.css";
 
 const Login = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const authFetch = useAuthFetch(); // hook
+  const authFetch = useAuthFetch(); // custom hook for authenticated fetches
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -17,22 +17,29 @@ const Login = () => {
     e.preventDefault();
 
     try {
+      // Attempt login
       const res = await fetch("http://localhost:5555/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // sets cookie with token
+        credentials: "include", // sends and stores cookies
         body: JSON.stringify(formData),
       });
 
       if (!res.ok) throw new Error("Invalid credentials");
 
-      
-      const testRes = await authFetch("http://localhost:5555/my-applications");
+      // Fetch session details to know who logged in
+      const sessionRes = await authFetch("http://localhost:5555/me");
+      if (!sessionRes.ok) throw new Error("Failed to fetch user session");
 
-      if (testRes.ok) {
+      const user = await sessionRes.json();
+
+      // Redirect based on user role
+      if (user.role === "student") {
         navigate("/dashboard");
+      } else if (user.role === "admin") {
+        navigate("/admin/dashboard");
       } else {
-        throw new Error("Login succeeded but session test failed");
+        throw new Error("Unknown role. Contact support.");
       }
 
     } catch (err) {
