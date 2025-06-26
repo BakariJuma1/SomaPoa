@@ -1,39 +1,40 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import useAuthFetch from "../hooks/useAuthFetch";
 import "../assets/styles/login.css";
 
 const Login = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const authFetch = useAuthFetch(); // custom hook for authenticated fetches
+  const authFetch = useAuthFetch();
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setError(""); // Clear error when user starts typing
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
     try {
-      // Attempt login
       const res = await fetch("http://localhost:5555/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // sends and stores cookies
+        credentials: "include",
         body: JSON.stringify(formData),
       });
 
-      if (!res.ok) throw new Error("Invalid credentials");
+      if (!res.ok) throw new Error("Invalid username or password");
 
-      // Fetch session details to know who logged in
       const sessionRes = await authFetch("http://localhost:5555/me");
       if (!sessionRes.ok) throw new Error("Failed to fetch user session");
 
       const user = await sessionRes.json();
 
-      // Redirect based on user role
       if (user.role === "student") {
         navigate("/dashboard");
       } else if (user.role === "admin") {
@@ -44,30 +45,73 @@ const Login = () => {
 
     } catch (err) {
       setError(err.message);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="login-container">
-      <h2>Login</h2>
-      {error && <p className="error">{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Username"
-          name="username"
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          name="password"
-          onChange={handleChange}
-          required
-        />
-        <button type="submit">Login</button>
-      </form>
+    <div className="login-page">
+      <div className="login-container">
+        <div className="login-header">
+          <Link to="/" className="logo">
+            <span className="logo-highlight">Soma</span>Poa
+          </Link>
+          <h2>Welcome Back</h2>
+          <p>Sign in to access your account</p>
+        </div>
+
+        {error && (
+          <div className="error-message">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z" />
+            </svg>
+            <span>{error}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="login-form">
+          <div className="form-group">
+            <label htmlFor="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              placeholder="Enter your username"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+
+          <button type="submit" className="login-button" disabled={isLoading}>
+            {isLoading ? (
+              <div className="spinner"></div>
+            ) : (
+              "Log In"
+            )}
+          </button>
+        </form>
+
+        <div className="login-footer">
+          <p>Don't have an account? <Link to="/register">Sign up</Link></p>
+          <Link to="/forgot-password" className="forgot-password">
+            Forgot password?
+          </Link>
+        </div>
+      </div>
     </div>
   );
 };
