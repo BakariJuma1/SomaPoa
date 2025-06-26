@@ -1,5 +1,6 @@
 // pages/AdminDashboard.js
 import { useState, useEffect } from "react"
+import { Link } from "react-router-dom"
 import useAuthFetch from "../hooks/useAuthFetch"
 import "../assets/styles/admindashboard.css"; 
 
@@ -46,11 +47,15 @@ const AdminDashboard = () => {
 
   return (
     <div className="container">
-      <h2>Admin Dashboard</h2>
+      {/* <h2>Admin Dashboard</h2> */}
 
       <div className="tabs">
         <button onClick={() => setView("pending")}>Pending</button>
         <button onClick={() => setView("eligible")}>Eligible</button>
+        <Link to="/admin/create-program">
+           <button>Create New Program</button>
+        </Link>
+
       </div>
 
       <div className="applications">

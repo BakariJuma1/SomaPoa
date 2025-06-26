@@ -1,23 +1,40 @@
-import { useContext } from "react";
-import { Navigate, useLocation } from "react-router-dom";
-import { AuthContext } from "../context/AuthProvider";
+import { useEffect, useState } from "react"
+import { Navigate, useLocation } from "react-router-dom"
 
-// roles = optional array of allowed roles (e.g., ['admin'])
 const RequireAuth = ({ children, roles }) => {
-  const { user } = useContext(AuthContext);
-  const location = useLocation();
+  const location = useLocation()
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
 
-  // Not logged in
-  if (!user || !user.role) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+  useEffect(() => {
+    fetch("http://localhost:5555/me", {
+      credentials: "include",
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Not logged in")
+        return res.json()
+      })
+      .then((data) => {
+        setUser(data)
+        setLoading(false)
+      })
+      .catch(() => {
+        setUser(null)
+        setLoading(false)
+      })
+  }, [])
+
+  if (loading) return <p>Loading...</p>
+
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} />
   }
 
-  // Role-based check (if roles prop was provided)
-  if (roles && !roles.includes(user.role)) {
-    return <Navigate to="/unauthorized" replace />;
+  if (!roles.includes(user.role)) {
+    return <Navigate to="/unauthorized" />
   }
 
-  return children;
-};
+  return children
+}
 
-export default RequireAuth;
+export default RequireAuth

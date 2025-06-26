@@ -22,7 +22,7 @@ const AdminCreateProgram = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    const res = await authFetch("http://localhost:5555/admin/programs", {
+    const res = await authFetch("http://localhost:5555/admin/programmes/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),

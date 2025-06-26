@@ -10,6 +10,7 @@ import Unauthorized from "./pages/Unauthorized"
 import RequireAuth from "./components/RequireAuth"
 import Apply from "./pages/Apply"
 import Navbar from "./components/Navbar"
+import AdminCreateProgram from "./pages/AdminCreateProgram"
 
 function App() {
   return (
@@ -54,6 +55,7 @@ function App() {
             </RequireAuth>
           }
         />
+        
 
         {/* Protected Admin Routes */}
         <Route
@@ -64,6 +66,15 @@ function App() {
             </RequireAuth>
           }
         />
+        <Route
+          path="/admin/create-program"
+          element={
+          <RequireAuth roles={["admin"]}>
+             <AdminCreateProgram />
+          </RequireAuth>
+  }
+/>
+
       </Routes>
     </>
   )
