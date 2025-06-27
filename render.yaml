@@ -4,8 +4,7 @@ services:
     env: python
     rootDir: server
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:create_app()
+    startCommand: gunicorn "server.app:create_app()" --bind 0.0.0.0:$PORT
     plan: free
     envVars:
       - fromGroup: somapoa-env
-        
