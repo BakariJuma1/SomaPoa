@@ -3,11 +3,13 @@ from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask import request
 from server.extension import db
+from datetime import datetime
 
 # Public: List all programs
 class ProgrammeList(Resource):
     def get(self):
-        programmes = Program.query.all()
+        today = datetime.utcnow().date()
+        programmes = Program.query.filter_by(visible=True).filter(Program.deadline >= today).all()
 
         result = []
         for p in programmes:
@@ -70,3 +72,38 @@ class ProgrammCreate(Resource):
             "message": "Program created successfully",
             "program": program.to_dict()
         }, 201
+# soft deleting  a program   # 
+class ProgrammeHide(Resource):
+    @jwt_required()
+    def patch(self, id):
+        identity = get_jwt_identity()
+        if identity["role"] != "admin":
+            return {"error": "Unauthorized"}, 403
+        
+        programme = Program.query.get(id)
+        if not programme:
+            return {"error": "Programme not found"}, 404
+        
+        programme.visible = False
+        db.session.commit()
+        return {"message": "Programme hidden successfully"}, 200
+
+# edit programme details
+class ProgrammeEdit(Resource):
+    @jwt_required()
+    def patch(self, id):
+        identity = get_jwt_identity()
+        if identity["role"] != "admin":
+            return {"error": "Unauthorized"}, 403
+
+        data = request.get_json()
+        programme = Program.query.get(id)
+        if not programme:
+            return {"error": "Programme not found"}, 404
+
+        for field in ["program_name", "ward", "year", "description", "deadline", "image_url"]:
+            if field in data:
+                setattr(programme, field, data[field])
+
+        db.session.commit()
+        return {"message": "Programme updated"}, 200

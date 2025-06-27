@@ -14,7 +14,7 @@ from server.controllers.applications.student_app_controller import ApplicationRe
 from server.controllers.applications.admin_app_controller import AllApplications,ApplicationUpdate,DeleteApplication,EligibleApplications,PendingApplications,AwardBursary
 
 # programmes
-from server.controllers.programmes.programme_controller import ProgrammeList,ProgrammCreate,ProgrammeDetail
+from server.controllers.programmes.programme_controller import ProgrammeList,ProgrammCreate,ProgrammeDetail,ProgrammeHide,ProgrammeEdit
 # users
 from server.controllers.users.users_controller import UserProfile,AllUsers
 from flask_cors import CORS
@@ -90,6 +90,12 @@ def create_app():
     api.add_resource(ProgrammeList,'/programmes')
     api.add_resource(ProgrammCreate,'/admin/programmes/create') 
     api.add_resource(ProgrammeDetail,'/programmes/<int:id>')
+    api.add_resource(ProgrammeHide,'/admin/programmes/<int:id>/hide')
+    api.add_resource(ProgrammeEdit,'/admin/programmes/<int:id>/edit')
+
+   # users
+    api.add_resource(UserProfile,'/users/<int:id>')
+    api.add_resource(AllUsers,'/admin/users')
    
     
     return app
