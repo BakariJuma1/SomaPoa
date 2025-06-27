@@ -3,105 +3,93 @@ from server.models.user import User
 from server.models.program import Program
 from server.models.application import Application
 from server.app import create_app
+from faker import Faker
 from datetime import datetime, timedelta
+import random
 
 app = create_app()
+fake = Faker()
+
+# Stable Unsplash images (curated manually)
+image_links = [
+    "https://images.unsplash.com/photo-1503676260728-1c00da094a0b",
+    "https://images.unsplash.com/photo-1558021212-51b6ecfa0db9",
+    "https://images.unsplash.com/photo-1596495577886-d920f1fb7238",
+    "https://images.unsplash.com/photo-1573164713988-8665fc963095",
+    "https://images.unsplash.com/photo-1584697964180-2e3aaf58d0a7",
+    "https://images.unsplash.com/photo-1607746882042-944635dfe10e",
+    "https://images.unsplash.com/photo-1581092580491-52a60b210175",
+    "https://images.unsplash.com/photo-1551218808-94e220e084d2",
+    "https://images.unsplash.com/photo-1560264357-8a9fdf52f4d0",
+    "https://images.unsplash.com/photo-1604023467129-a8da9fdd07ec"
+]
 
 with app.app_context():
     db.drop_all()
     db.create_all()
 
-    # Users
-    admin = User(username="admin_user", email="admin@example.com", role="admin")
-    admin.set_password("adminpass")
+    print("🔄 Seeding database...")
 
-    student1 = User(username="student1", email="student1@example.com", role="student")
-    student1.set_password("studentpass")
-
-    student2 = User(username="student2", email="student2@example.com", role="student")
-    student2.set_password("studentpass")
-
-    student3 = User(username="student3", email="student3@example.com", role="student")
-    student3.set_password("studentpass")
-
-    student4 = User(username="student4", email="student4@example.com", role="student")
-    student4.set_password("studentpass")
-
-    db.session.add_all([admin, student1, student2, student3, student4])
-    db.session.commit()
-
-    # Programmes
-    programme1 = Program(
-        program_name="County Education Bursary",
-        ward='Lugari',
-        description="Bursary for needy secondary school students",
-        deadline=datetime.utcnow() + timedelta(days=7)
-    )
-
-    programme2 = Program(
-        program_name="Emergency Support Fund",
-        ward='Kisii',
-        description="Bursary for students in emergencies",
-        deadline=datetime.utcnow() - timedelta(days=1)
-    )
-
-    programme3 = Program(
-        program_name="University Talent Grant",
-        ward='Kakamega Central',
-        description="Grant for students excelling in sports or arts",
-        deadline=datetime.utcnow() + timedelta(days=14)
-    )
-
-    programme4 = Program(
-        program_name="Orphans & Vulnerable Children Bursary",
-        ward='Mumias East',
-        description="Targeted support for OVCs in primary and secondary",
-        deadline=datetime.utcnow() + timedelta(days=30)
-    )
-
-    db.session.add_all([programme1, programme2, programme3, programme4])
-    db.session.commit()
-
-    # Applications
-    applications = [
-        Application(
-            student_id=student1.id,
-            program_id=programme1.id,
-            school_name="Greenhill High",
-            ward="Lugari",
-            education_level="secondary",
-            kcse_grade="B",
-            household_income=25000,
-            income_proof_url="http://example.com/income1.pdf",
-            academic_proof_url="http://example.com/report1.pdf"
-        ),
-        Application(
-            student_id=student2.id,
-            program_id=programme3.id,
-            school_name="Kakamega Uni",
-            ward="Kakamega Central",
-            education_level="university",
-            kcse_grade="A",
-            household_income=40000,
-            income_proof_url="http://example.com/income2.pdf",
-            academic_proof_url="http://example.com/report2.pdf"
-        ),
-        Application(
-            student_id=student3.id,
-            program_id=programme4.id,
-            school_name="Mumias Academy",
-            ward="Mumias East",
-            education_level="primary",
-            kcse_grade=None,
-            household_income=10000,
-            income_proof_url="http://example.com/income3.pdf",
-            academic_proof_url="http://example.com/report3.pdf"
+    # Create Admins
+    admins = []
+    for i in range(5):
+        user = User(
+            username=fake.user_name(),
+            email=f"admin{i}@example.com",
+            role="admin"
         )
-    ]
+        user.set_password("adminpass")
+        admins.append(user)
+    
+    # Create Students
+    students = []
+    for i in range(45):
+        user = User(
+            username=fake.user_name(),
+            email=f"student{i}@example.com",
+            role="student"
+        )
+        user.set_password("studentpass")
+        students.append(user)
 
-    for app in applications:
-        app.evaluate()
-        db.session.add(app)
-
+    db.session.add_all(admins + students)
     db.session.commit()
-    print("Database seeded successfully with more users, programs, and applications!")
+
+    # Create Programs
+    programs = []
+    for i in range(20):
+        program = Program(
+            program_name=fake.catch_phrase(),
+            ward=fake.city(),
+            description=fake.text(max_nb_chars=200),
+            deadline=datetime.utcnow() + timedelta(days=random.randint(-5, 30)),
+            image_url=random.choice(image_links),
+        )
+        programs.append(program)
+    
+    db.session.add_all(programs)
+    db.session.commit()
+
+    # Applications (each student can apply to up to 3 random programs)
+    applications = []
+    for student in students:
+        chosen_programs = random.sample(programs, k=random.randint(1, 3))
+        for program in chosen_programs:
+            app = Application(
+                student_id=student.id,
+                program_id=program.id,
+                school_name=fake.company() + " School",
+                ward=fake.city(),
+                education_level=random.choice(["primary", "secondary", "university"]),
+                kcse_grade=random.choice(["A", "B+", "B", "C+", "C"]),
+                household_income=random.randint(10000, 60000),
+                income_proof_url=f"http://example.com/income{random.randint(1, 100)}.pdf",
+                academic_proof_url=f"http://example.com/report{random.randint(1, 100)}.pdf"
+            )
+            app.evaluate()
+            applications.append(app)
+
+    db.session.add_all(applications)
+    db.session.commit()
+
+    print("✅ Database seeded successfully!")

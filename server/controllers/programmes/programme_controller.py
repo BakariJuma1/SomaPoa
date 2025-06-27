@@ -107,3 +107,30 @@ class ProgrammeEdit(Resource):
 
         db.session.commit()
         return {"message": "Programme updated"}, 200
+    
+# Admin only: List all programmes (including hidden ones)
+class ProgrammeAdminList(Resource):
+    @jwt_required()
+    def get(self):
+        identity = get_jwt_identity()
+
+        if identity["role"] != "admin":
+            return {"error": "Unauthorized"}, 403
+
+        programmes = Program.query.order_by(Program.deadline.desc()).all()
+        result = []
+
+        for p in programmes:
+            result.append({
+                "id": p.id,
+                "program_name": p.program_name,
+                "ward": p.ward,
+                "year": p.year,
+                "description": p.description,
+                "visible": p.visible,
+                "deadline": p.deadline.strftime("%Y-%m-%d") if p.deadline else None,
+                "image_url": p.image_url
+            })
+
+        return result, 200
+    

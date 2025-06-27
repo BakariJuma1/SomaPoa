@@ -11,6 +11,7 @@ import RequireAuth from "./components/RequireAuth"
 import Apply from "./pages/Apply"
 import Navbar from "./components/Navbar"
 import AdminCreateProgram from "./pages/AdminCreateProgram"
+import AdminProgramList from "./pages/AdminProgramList"
 
 function App() {
   return (
@@ -58,14 +59,22 @@ function App() {
         
 
         {/* Protected Admin Routes */}
-        <Route
-          path="/admin/dashboard"
-          element={
-            <RequireAuth roles={["admin"]}>
-              <AdminDashboard />
-            </RequireAuth>
-          }
-        />
+<Route
+  path="/admin/dashboard"
+  element={
+    <RequireAuth roles={["admin"]}>
+      <AdminDashboard />
+    </RequireAuth>
+  }
+/>
+<Route
+  path="/admin/programmes"
+  element={
+    <RequireAuth roles={["admin"]}>
+      <AdminProgramList />
+    </RequireAuth>
+  }
+/>
         <Route
           path="/admin/create-program"
           element={
