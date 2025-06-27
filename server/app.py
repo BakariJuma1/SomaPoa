@@ -3,7 +3,7 @@ from flask import Flask,request
 from flask_migrate import Migrate
 from flask_restful import Api, Resource  
 from dotenv import load_dotenv
-from .models import db,User,Program,Application
+# from server.models import db,User,Program,Application
 from server.extension import db, migrate, jwt
 # authentication
 from server.controllers.auth.login_controller import Login
