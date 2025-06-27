@@ -59,10 +59,9 @@ with app.app_context():
     programs = []
     for i in range(20):
         program = Program(
-            program_name=fake.catch_phrase(),
-            ward=fake.city(),
+            name=fake.bs().title(),
             description=fake.text(max_nb_chars=200),
-            deadline=datetime.utcnow() + timedelta(days=random.randint(-5, 30)),
+            deadline=datetime.now(datetime.timezone.utc) + timedelta(days=random.randint(-5, 30)),
             image_url=random.choice(image_links),
         )
         programs.append(program)
@@ -92,4 +91,4 @@ with app.app_context():
     db.session.add_all(applications)
     db.session.commit()
 
-    print("✅ Database seeded successfully!")
+    print(" Database seeded successfully!")
