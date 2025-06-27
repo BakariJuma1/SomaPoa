@@ -7,7 +7,7 @@ const RequireAuth = ({ children, roles }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch("http://localhost:5555/me", {
+    fetch("https://somapoa.onrender.com/me", {
       credentials: "include",
     })
       .then((res) => {

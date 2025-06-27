@@ -26,7 +26,7 @@ const AdminCreateProgram = () => {
     setIsSubmitting(true);
 
     try {
-      const res = await authFetch("http://localhost:5555/admin/programmes/create", {
+      const res = await authFetch("https://somapoa.onrender.com/admin/programmes/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

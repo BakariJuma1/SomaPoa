@@ -16,7 +16,7 @@ const AdminProgramList = () => {
   useEffect(() => {
     const fetchProgrammes = async () => {
       try {
-        const res = await authFetch("http://localhost:5555/admin/programmes");
+        const res = await authFetch("https://somapoa.onrender.com/admin/programmes");
         const data = await res.json();
         setProgrammes(data);
       } catch (err) {
@@ -32,7 +32,7 @@ const AdminProgramList = () => {
 
   const hideProgramme = async (id) => {
     try {
-      await authFetch(`http://localhost:5555/admin/programmes/${id}/hide`, {
+      await authFetch(`https://somapoa.onrender.com/admin/programmes/${id}/hide`, {
         method: "PATCH"
       });
       setProgrammes(prev => prev.filter(p => p.id !== id));
@@ -45,7 +45,7 @@ const AdminProgramList = () => {
   const updateProgramme = async (e) => {
     e.preventDefault();
     try {
-      const res = await authFetch(`http://localhost:5555/admin/programmes/${selectedProgramme.id}/edit`, {
+      const res = await authFetch(`https://somapoa.onrender.com/admin/programmes/${selectedProgramme.id}/edit`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(selectedProgramme)

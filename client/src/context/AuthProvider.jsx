@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const res = await authFetch("http://localhost:5555/me");
+        const res = await authFetch("https://somapoa.onrender.com/me");
         if (res.ok) {
           const data = await res.json();
           setUser(data); // { id, role }

@@ -4,7 +4,7 @@ const useAuthFetch = () => {
   // Refresh token function
   const refreshToken = async () => {
     try {
-      const res = await fetch("http://localhost:5555/refresh", {
+      const res = await fetch("https://somapoa.onrender.com/refresh", {
         method: "POST",
         credentials: "include",
       });

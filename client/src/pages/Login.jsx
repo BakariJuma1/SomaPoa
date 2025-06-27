@@ -21,7 +21,7 @@ const Login = () => {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:5555/login", {
+      const res = await fetch("https://somapoa.onrender.com/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -30,7 +30,7 @@ const Login = () => {
 
       if (!res.ok) throw new Error("Invalid username or password");
 
-      const sessionRes = await authFetch("http://localhost:5555/me");
+      const sessionRes = await authFetch("https://somapoa.onrender.com/me");
       if (!sessionRes.ok) throw new Error("Failed to fetch user session");
 
       const user = await sessionRes.json();

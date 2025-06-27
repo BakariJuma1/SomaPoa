@@ -15,8 +15,8 @@ const MyApplications = () => {
       try {
         setLoading(true);
         setError("");
-        const res = await authFetch("http://localhost:5555/my-applications");
-        
+        const res = await authFetch("https://somapoa.onrender.com/my-applications");
+
         if (!res.ok) {
           throw new Error(res.status === 401 ? 
             "Please login to view applications" : 

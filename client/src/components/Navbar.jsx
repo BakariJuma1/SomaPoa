@@ -8,7 +8,7 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:5555/me", {
+    fetch("https://somapoa.onrender.com/me", {
       credentials: "include",
     })
       .then((res) => {
@@ -20,7 +20,7 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = () => {
-    fetch("http://localhost:5555/logout", {
+    fetch("https://somapoa.onrender.com/logout", {
       method: "POST",
       credentials: "include",
     }).then(() => {

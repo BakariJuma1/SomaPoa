@@ -27,7 +27,7 @@ const ApplyForm = () => {
   const [message, setMessage] = useState({ text: '', type: '' })
 
   useEffect(() => {
-    fetch(`http://localhost:5555/programmes/${id}`, {
+    fetch(`https://somapoa.onrender.com/programmes/${id}`, {
       credentials: 'include'
     })
       .then(res => {
@@ -99,7 +99,7 @@ const ApplyForm = () => {
     })
 
     try {
-      const res = await fetch('http://localhost:5555/applications', {
+      const res = await fetch('https://somapoa.onrender.com/applications', {
         method: 'POST',
         body: data,
         credentials: 'include'

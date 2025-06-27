@@ -13,7 +13,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchApplications = async () => {
       try {
-        const res = await authFetch("http://localhost:5555/my-applications");
+        const res = await authFetch("https://somapoa.onrender.com/my-applications");
         if (res.ok) {
           const data = await res.json();
           setApplications(data);

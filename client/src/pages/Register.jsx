@@ -23,7 +23,7 @@ const Register = () => {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:5555/register", {
+      const res = await fetch("https://somapoa.onrender.com/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

@@ -23,7 +23,7 @@ const Home = () => {
   const [programmes, setProgrammes] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5555/programmes")
+    fetch("https://somapoa.onrender.com/programmes")
       .then((res) => res.json())
       .then((data) => setProgrammes(data))
       .catch((err) => console.error("Error fetching programmes:", err));

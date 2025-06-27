@@ -39,8 +39,8 @@ const AdminDashboard = () => {
   const handleStatusUpdate = async (id, action) => {
     try {
       const url = action === "award"
-        ? `http://localhost:5555/admin/applications/${id}/award`
-        : `http://localhost:5555/admin/applications/${id}/update`;
+        ? `https://somapoa.onrender.com/admin/applications/${id}/award`
+        : `https://somapoa.onrender.com/admin/applications/${id}/update`;
 
       const res = await authFetch(url, {
         method: "PATCH",

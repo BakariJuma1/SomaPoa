@@ -13,7 +13,7 @@ const Apply = () => {
   useEffect(() => {
     const fetchProgrammes = async () => {
       try {
-        const res = await authFetch("http://localhost:5555/programmes");
+        const res = await authFetch("https://somapoa.onrender.com/programmes");
         if (res.ok) {
           const data = await res.json();
           setProgrammes(data);

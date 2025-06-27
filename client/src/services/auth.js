@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'http://localhost:5555',
+  baseURL: 'https://somapoa.onrender.com',
   withCredentials: true, // so browser sends JWT cookies
 })
 
