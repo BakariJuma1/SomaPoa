@@ -31,7 +31,10 @@ def create_app():
     # set the route 
     CORS(app,
          supports_credentials=True,
-         origins=["http://localhost:5173"]
+         origins=[
+             "http://localhost:5173",
+             "https://somapoa.onrender.com"
+             ]
          )
     app.config.from_prefixed_env() 
 
