@@ -2,7 +2,7 @@ services:
   - type: web
     name: somapoa-backend
     env: python
-    rootDir: server
+    rootDir: .                              # ✅ Now pointing to root folder
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn "server.app:create_app()" --bind 0.0.0.0:$PORT
     plan: free
