@@ -25,9 +25,15 @@ const useAuthFetch = () => {
     if (res.status === 401) {
       const refreshed = await refreshToken();
       if (refreshed) {
+        // Retrieve token from localStorage (or another source as appropriate)
+        const token = localStorage.getItem("token");
         res = await fetch(url, {
           ...options,
           credentials: "include",
+          headers: {
+            ...(options.headers || {}),
+            Authorization: token ? `Bearer ${token}` : undefined,
+          },
         });
       }
     }

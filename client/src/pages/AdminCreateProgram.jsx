@@ -1,7 +1,7 @@
 import { useState } from "react";
 import useAuthFetch from "../hooks/useAuthFetch";
 import { useNavigate } from "react-router-dom";
-import "../assets/styles/admincreateprogramme.css"; // Make sure to import the CSS
+import "../assets/styles/admincreateprogramme.css"; 
 
 const AdminCreateProgram = () => {
   const [formData, setFormData] = useState({
@@ -131,4 +131,4 @@ const AdminCreateProgram = () => {
   );
 };
 
-export default AdminCreateProgram; // This is the crucial default export
+export default AdminCreateProgram; 

@@ -16,8 +16,8 @@ const AdminDashboard = () => {
       setLoading(true);
       setError("");
       const url = view === "pending"
-        ? "http://localhost:5555/admin/applications/pending"
-        : "http://localhost:5555/admin/applications/eligible";
+        ? "https://somapoa.onrender.com/admin/applications/pending"
+        : "https://somapoa.onrender.com/admin/applications/eligible";
 
       const res = await authFetch(url);
       if (!res.ok) throw new Error("Failed to fetch applications");
