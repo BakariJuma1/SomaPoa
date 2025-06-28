@@ -132,7 +132,7 @@ return (
                                             <span>Last updated: {new Date(app.updated_at || app.applied_at).toLocaleDateString()}</span>
                                         </div>
                                     </div>
-                                    <Link to={`/application/${app.application_id}`} className="view-details-btn">
+                                    <Link to={`/my-application/${app.application_id}`} className="view-details-btn">
                                         View Details
                                     </Link>
                                 </div>

@@ -36,7 +36,7 @@ const Login = () => {
       const user = await sessionRes.json();
 
       if (user.role === "student") {
-        navigate("/dashboard");
+        navigate("/dashboard",{replace:true});
       } else if (user.role === "admin") {
         navigate("/admin/dashboard");
       } else {

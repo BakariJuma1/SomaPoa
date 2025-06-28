@@ -119,3 +119,40 @@ class MyApplications(Resource):
         print(" Error in /my-applications:", e)  
         return {"error": "Something went wrong"}, 500
 
+class SingleApplication(Resource):
+    @jwt_required()
+    def get(self, id):
+        identity = get_jwt_identity()
+        if identity["role"] != "student":
+            return {"error": "Only students can view their applications"}, 403
+
+        student_id = identity["id"]
+        application = Application.query.filter_by(id=id, student_id=student_id).first()
+        if not application:
+            return {"message": "Application not found"}, 404
+        return application.to_dict(), 200
+
+    @jwt_required()
+    def put(self, id):
+        identity = get_jwt_identity()
+        if identity["role"] != "student":
+            return {"error": "Only students can edit their applications"}, 403
+
+        student_id = identity["id"]
+        application = Application.query.filter_by(id=id, student_id=student_id).first()
+        if not application:
+            return {"message": "Application not found"}, 404
+
+        data = request.get_json()
+        # Update allowed fields
+        for field in ["school_name", "ward", "education_level", "kcpe_score", "kcse_grade", "gpa", "household_income"]:
+            if field in data:
+                setattr(application, field, data[field])
+
+        try:
+            db.session.commit()
+            return {"message": "Application updated successfully", "application": application.to_dict()}, 200
+        except Exception as e:
+            db.session.rollback()
+            print("Error updating application:", e)
+            return {"error": "Something went wrong updating the application."}, 500

@@ -10,7 +10,7 @@ from server.controllers.auth.login_controller import Login
 from server.controllers.auth.register_controller import Register
 from server.controllers.auth.logout_controller import Logout
 # student application
-from server.controllers.applications.student_app_controller import ApplicationResource,MyApplications
+from server.controllers.applications.student_app_controller import ApplicationResource,MyApplications,SingleApplication
 from server.controllers.applications.admin_app_controller import AllApplications,ApplicationUpdate,DeleteApplication,EligibleApplications,PendingApplications,AwardBursary
 
 # programmes
@@ -80,6 +80,7 @@ def create_app():
    #  student applications
     api.add_resource(ApplicationResource,'/applications')
     api.add_resource(MyApplications,'/my-applications')
+    api.add_resource(SingleApplication,'/applications/<int:id>')
  
    #  admin applications
     api.add_resource(AllApplications,'/admin/applications')
