@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "../assets/styles/home.css";
 
-// Simple SVG icons for our metadata
+// SVG Icons
 const LocationIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
@@ -21,12 +21,25 @@ const CalendarIcon = () => (
 
 const Home = () => {
   const [programmes, setProgrammes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("https://somapoa.onrender.com/programmes")
-      .then((res) => res.json())
-      .then((data) => setProgrammes(data))
-      .catch((err) => console.error("Error fetching programmes:", err));
+    const fetchProgrammes = async () => {
+      try {
+        const res = await fetch("https://somapoa.onrender.com/programmes");
+        if (!res.ok) throw new Error("Failed to fetch programmes");
+        const data = await res.json();
+        setProgrammes(data);
+      } catch (err) {
+        console.error("Error fetching programmes:", err);
+        setError("Unable to load bursaries. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProgrammes();
   }, []);
 
   return (
@@ -49,11 +62,17 @@ const Home = () => {
         </div>
 
         <div className="programmes-grid">
-          {programmes.length === 0 ? (
+          {loading ? (
             <div className="loading-state">
               <div className="spinner"></div>
               <p>Loading bursaries...</p>
             </div>
+          ) : error ? (
+            <div className="error-state">
+              <p>❌ {error}</p>
+            </div>
+          ) : programmes.length === 0 ? (
+            <p>No bursaries available at the moment.</p>
           ) : (
             programmes.map((programme) => (
               <article key={programme.id} className="programme-card">
@@ -61,6 +80,9 @@ const Home = () => {
                   <img
                     src={programme.image_url || "/default-programme.jpg"}
                     alt={programme.program_name}
+                    onError={(e) =>
+                      (e.target.src = "https://via.placeholder.com/300x200?text=Bursary")
+                    }
                   />
                   <span className="card-badge">Open</span>
                 </div>
