@@ -12,6 +12,7 @@ import Apply from "./pages/Apply"
 import Navbar from "./components/Navbar"
 import AdminCreateProgram from "./pages/AdminCreateProgram"
 import AdminProgramList from "./pages/AdminProgramList"
+import ApplicationDetails from "./pages/ApplicationDetails"
 
 function App() {
   return (
@@ -53,6 +54,14 @@ function App() {
           element={
             <RequireAuth roles={["student"]}>
               <ApplyForm />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/my-application/:id"
+          element={
+            <RequireAuth roles={["student"]}>
+              <ApplicationDetails />
             </RequireAuth>
           }
         />

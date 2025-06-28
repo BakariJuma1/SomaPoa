@@ -80,8 +80,8 @@ def create_app():
    #  student applications
     api.add_resource(ApplicationResource,'/applications')
     api.add_resource(MyApplications,'/my-applications')
-    api.add_resource(SingleApplication,'/applications/<int:id>')
- 
+    api.add_resource(SingleApplication,'/my-application/<int:id>')
+
    #  admin applications
     api.add_resource(AllApplications,'/admin/applications')
     api.add_resource(PendingApplications, "/admin/applications/pending")
