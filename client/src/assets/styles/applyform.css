@@ -275,4 +275,7 @@
     font-size: 1.2rem;
   }
 
-  .application-form 
+  .application-form {
+    padding: 1rem;
+  }
+}

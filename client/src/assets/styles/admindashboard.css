@@ -1,15 +1,15 @@
 :root {
-  --primary: #2C3E50;
-  --secondary: #34495E;
-  --accent: #E74C3C;
-  --accent-light: #FF6B6B;
-  --light: #ECF0F1;
-  --light-gray: #BDC3C7;
-  --dark-gray: #7F8C8D;
-  --white: #FFFFFF;
-  --success: #27AE60;
-  --warning: #F39C12;
-  --error: #E74C3C;
+  --primary: #2c3e50;
+  --secondary: #34495e;
+  --accent: #e74c3c;
+  --accent-light: #ff6b6b;
+  --light: #ecf0f1;
+  --light-gray: #bdc3c7;
+  --dark-gray: #7f8c8d;
+  --white: #ffffff;
+  --success: #27ae60;
+  --warning: #f39c12;
+  --error: #e74c3c;
   --border-radius: 8px;
   --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   --transition: all 0.25s cubic-bezier(0.645, 0.045, 0.355, 1);
@@ -248,8 +248,12 @@
 }
 
 .empty-state svg {
+  /*  */
   color: var(--light-gray);
   margin-bottom: 1rem;
+}
+
+/*  */
 
 .empty-state h3 {
   color: var(--primary);
@@ -317,9 +321,10 @@
   background-color: var(--accent-light);
 }
 
-
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .manage-programmes-btn {
@@ -352,17 +357,17 @@
   .admin-dashboard {
     padding: 1.5rem 1rem;
   }
-  
+
   .dashboard-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
   }
-  
+
   .applications-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .card-actions {
     flex-direction: column;
   }
