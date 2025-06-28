@@ -33,7 +33,8 @@ def create_app():
          supports_credentials=True,
          origins=[
              "http://localhost:5173",
-             "https://somapoa.onrender.com"
+             "https://somapoa.netlify.app"
+            #  "https://somapoa.onrender.com"
              ]
          )
     app.config.from_prefixed_env() 
