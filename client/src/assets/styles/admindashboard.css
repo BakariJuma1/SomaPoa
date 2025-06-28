@@ -222,7 +222,8 @@
 }
 
 .award-button:hover {
-  background-color: #219653;
+  background-color: var(--success);
+  filter: brightness(0.9);
   transform: translateY(-2px);
 }
 
@@ -249,7 +250,6 @@
 .empty-state svg {
   color: var(--light-gray);
   margin-bottom: 1rem;
-}
 
 .empty-state h3 {
   color: var(--primary);
@@ -321,6 +321,7 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
 .manage-programmes-btn {
   display: flex;
   align-items: center;
