@@ -5,6 +5,8 @@ import "../assets/styles/login.css";
 
 const Login = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
+  const [otp, setOtp] = useState(""); // NEW: OTP input
+  const [showOtp, setShowOtp] = useState(false); // NEW: flag to show OTP field
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -12,7 +14,7 @@ const Login = () => {
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    setError(""); // Clear error when user starts typing
+    setError("");
   };
 
   const handleSubmit = async (e) => {
@@ -20,32 +22,53 @@ const Login = () => {
     setIsLoading(true);
     setError("");
 
-    try {
-      const res = await fetch("https://somapoa.onrender.com/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(formData),
-      });
+    if (!showOtp) {
+      // STEP 1: Submit username + password
+      try {
+        const res = await fetch("https://somapoa.onrender.com/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(formData),
+        });
 
-      if (!res.ok) throw new Error("Invalid username or password");
+        if (!res.ok) throw new Error("Invalid username or password");
 
-      const sessionRes = await authFetch("https://somapoa.onrender.com/me");
-      if (!sessionRes.ok) throw new Error("Failed to fetch user session");
-
-      const user = await sessionRes.json();
-
-      if (user.role === "student") {
-        navigate("/dashboard",{replace:true});
-      } else if (user.role === "admin") {
-        navigate("/admin/dashboard");
-      } else {
-        throw new Error("Unknown role. Contact support.");
+        // OTP sent — show OTP field now
+        setShowOtp(true);
+        setIsLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setIsLoading(false);
       }
+    } else {
+      // STEP 2: Submit OTP
+      try {
+        const res = await fetch("https://somapoa.onrender.com/verify-otp-login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ username: formData.username, otp }),
+        });
 
-    } catch (err) {
-      setError(err.message);
-      setIsLoading(false);
+        if (!res.ok) throw new Error("Invalid or expired OTP");
+
+        const sessionRes = await authFetch("https://somapoa.onrender.com/me");
+        if (!sessionRes.ok) throw new Error("Failed to fetch user session");
+
+        const user = await sessionRes.json();
+
+        if (user.role === "student") {
+          navigate("/dashboard", { replace: true });
+        } else if (user.role === "admin") {
+          navigate("/admin/dashboard");
+        } else {
+          throw new Error("Unknown role. Contact support.");
+        }
+      } catch (err) {
+        setError(err.message);
+        setIsLoading(false);
+      }
     }
   };
 
@@ -70,38 +93,53 @@ const Login = () => {
         )}
 
         <form onSubmit={handleSubmit} className="login-form">
-          <div className="form-group">
-            <label htmlFor="username">Username</label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              placeholder="Enter your username"
-              required
-            />
-          </div>
+          {!showOtp && (
+            <>
+              <div className="form-group">
+                <label htmlFor="username">Username</label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  placeholder="Enter your username"
+                  required
+                />
+              </div>
 
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Enter your password"
-              required
-            />
-          </div>
+              <div className="form-group">
+                <label htmlFor="password">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Enter your password"
+                  required
+                />
+              </div>
+            </>
+          )}
+
+          {showOtp && (
+            <div className="form-group">
+              <label htmlFor="otp">Enter OTP</label>
+              <input
+                type="text"
+                id="otp"
+                name="otp"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                placeholder="Enter the OTP sent to your email"
+                required
+              />
+            </div>
+          )}
 
           <button type="submit" className="login-button" disabled={isLoading}>
-            {isLoading ? (
-              <div className="spinner"></div>
-            ) : (
-              "Log In"
-            )}
+            {isLoading ? <div className="spinner"></div> : showOtp ? "Verify OTP" : "Log In"}
           </button>
         </form>
 
