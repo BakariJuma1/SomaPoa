@@ -2,7 +2,7 @@ import os
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
-def send_email_otp(to_email, otp_code):
+def send_otp_email(to_email, otp_code):
     message = Mail(
         from_email='your_verified_sender@example.com',
         to_emails=to_email,

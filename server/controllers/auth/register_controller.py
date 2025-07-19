@@ -6,7 +6,7 @@ from flask import request
 from datetime import timedelta
 import pyotp
 import os
-from server.utils.email_service import send_email_otp
+from server.utils.email_service import send_otp_email
 
 
 class Register(Resource):
@@ -46,5 +46,5 @@ class Register(Resource):
         otp_code = totp.now()
 
         # send email
-        send_email_otp(email,otp_code)
+        send_otp_email(email,otp_code)
         return{"message":"User created.OTP sent to email for verification"}
