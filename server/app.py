@@ -23,6 +23,8 @@ from flask_cors import CORS
 from server.controllers.auth.refresh_controller import RefreshToken
 from datetime import timedelta
 from server.controllers.auth.me_controller import Me
+from server.extension import mail
+from flask_mail import Message
 
 load_dotenv()
 
@@ -49,14 +51,26 @@ def create_app():
     app.config['JWT_COOKIE_SAMESITE'] = os.getenv("JWT_COOKIE_SAMESITE", "Lax")
     # app.config['JWT_COOKIE_CSRF_PROTECT'] = os.getenv("JWT_COOKIE_CSRF_PROTECT", "False").lower() == "true"
 
+
     # Handle expiration durations
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(seconds=int(os.getenv("JWT_ACCESS_TOKEN_EXPIRES", 900)))
     app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(seconds=int(os.getenv("JWT_REFRESH_TOKEN_EXPIRES", 604800)))
+
+    # Flask-Mail config
+    app.config['MAIL_SERVER'] = os.getenv("MAIL_SERVER", "smtp-relay.brevo.com")
+    app.config['MAIL_PORT'] = int(os.getenv("MAIL_PORT", 587))
+    app.config['MAIL_USE_TLS'] = os.getenv("MAIL_USE_TLS", "True").lower() == "true"
+    app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")
+    app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
+    app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MAIL_DEFAULT_SENDER")
+
 
     db.init_app(app)
     migrate.init_app(app, db)
     api = Api(app)
     jwt.init_app(app)
+    mail.init_app(app)
+
 
    #  CRSF protection for cookies
     app.config['JWT_COOKIE_CSRF_PROTECT']= False
@@ -69,7 +83,16 @@ def create_app():
     @app.route('/')
     def home():
        return {"message": "Welcome to Somapoa  API",}
-    
+    @app.route('/test-email')
+    def test_email():
+        msg = Message(
+            subject='Test Email from Somapoa',
+            recipients=['jumaisaq@gmail.com'],
+            body='This is a test email sent from the Somapoa API.'
+        )
+        mail.send(msg)
+        return {"message": "Test email sent successfully."}
+
    #registering my routes
    # auth routes
     api.add_resource(Login,'/login')
