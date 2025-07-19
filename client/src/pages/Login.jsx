@@ -44,7 +44,7 @@ const Login = () => {
     } else {
       // STEP 2: Submit OTP
       try {
-        const res = await fetch("https://somapoa.onrender.com/verify-otp-login", {
+        const res = await fetch("https://somapoa.onrender.com/verify-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",

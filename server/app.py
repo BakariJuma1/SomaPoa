@@ -94,7 +94,8 @@ def create_app():
             msg = Message(
                 subject='Test Email from Somapoa',
                 recipients=['jumaisaq@gmail.com'],
-                body='This is a test email sent from the Somapoa API.'
+                body='This is a test email sent from the Somapoa API.',
+                sender=app.config['MAIL_DEFAULT_SENDER']
             )
             mail.send(msg)
             return {"message": "Test email sent successfully."}
