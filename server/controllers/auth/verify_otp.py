@@ -2,7 +2,7 @@ from flask_restful import Resource
 from flask_jwt_extended import create_access_token
 from server.extension import db
 from server.models.user import User
-from flask import request
+from flask import request,make_response
 from datetime import timedelta
 import pyotp
 from flask_jwt_extended import set_refresh_cookies,create_refresh_token,set_access_cookies
@@ -10,6 +10,9 @@ from flask import request, make_response, jsonify
 import datetime
 
 class VerifyOTP(Resource):
+    def options(self):
+        return make_response(jsonify({"message":"Preflight OK"})) , 200
+    
     def post(self):
         data = request.get_json()
         if not data or not data.get('username') or not data.get('otp'):
