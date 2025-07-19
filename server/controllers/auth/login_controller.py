@@ -19,7 +19,7 @@ class Login(Resource):
         user = User.query.filter_by(username=username).first()
 
         if user and user.check_password(password):
-            # Step 1: Generate a time-based OTP secret if not already there
+            #  Generate a time-based OTP secret if not already there
             if not user.otp_secret:
                 user.otp_secret = pyotp.random_base32()
 
