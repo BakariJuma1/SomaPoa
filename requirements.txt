@@ -31,4 +31,5 @@ Werkzeug==3.0.6
 zipp==3.20.2
 pyotp==2.8.0
 sendgrid==6.10.0
+Flask-Mail>=0.9.1
 
