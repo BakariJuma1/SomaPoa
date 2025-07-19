@@ -25,6 +25,7 @@ from datetime import timedelta
 from server.controllers.auth.me_controller import Me
 from server.extension import mail
 from flask_mail import Message
+import logging
 
 load_dotenv()
 
@@ -86,15 +87,22 @@ def create_app():
     def home():
        return {"message": "Welcome to Somapoa  API",}
     
+    # Test email route
     @app.route('/test-email')
     def test_email():
-        msg = Message(
-            subject='Test Email from Somapoa',
-            recipients=['jumaisaq@gmail.com'],
-            body='This is a test email sent from the Somapoa API.'
-        )
-        mail.send(msg)
-        return {"message": "Test email sent successfully."}
+        try:
+            msg = Message(
+                subject='Test Email from Somapoa',
+                recipients=['jumaisaq@gmail.com'],
+                body='This is a test email sent from the Somapoa API.'
+            )
+            mail.send(msg)
+            return {"message": "Test email sent successfully."}
+        except Exception as e:
+            logging.exception("Email failed to send")
+            return {"error": str(e)}, 500
+
+   
 
    #registering my routes
    # auth routes
@@ -104,6 +112,9 @@ def create_app():
     api.add_resource(RefreshToken,'/refresh')
     api.add_resource(Me,'/me')
     api.add_resource(VerifyOTP,'/verify-otp')
+
+    # test api
+   
 
 
    #  student applications
