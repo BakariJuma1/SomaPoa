@@ -12,6 +12,7 @@ flask-restful = "*"
 python-dotenv = "*"
 psycopg2-binary = "*"
 pyotp = "*"
+sendgrid = "*"
 
 [dev-packages]
 

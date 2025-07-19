@@ -12,8 +12,10 @@ class User(db.Model,SerializerMixin):
     email  = db.Column(db.String,unique=True,nullable=False)
     password_hash = db.Column(db.String,nullable=False)
     role = db.Column(db.String,default='student',nullable=False)
-    totp_secret = db.Column(db.String)
-    is_verified = db.Column(db.Boolean,default=False)
+    otp_secret = db.Column(db.String)
+    otp_verified = db.Column(db.Boolean,default=False)
+    otp_expiry = db.Column(db.DateTime)
+
     created_at = db.Column(db.Date)
 
     applications = db.relationship("Application",back_populates='student')
