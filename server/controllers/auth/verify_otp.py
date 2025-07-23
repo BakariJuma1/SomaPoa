@@ -1,18 +1,17 @@
 from flask_restful import Resource
-from flask_jwt_extended import create_access_token
-from server.extension import db
-from server.models.user import User
-from flask import request,make_response
-from datetime import timedelta
+from flask_jwt_extended import (
+    create_access_token, create_refresh_token,
+    set_access_cookies, set_refresh_cookies
+)
+from flask import request, jsonify, make_response
+from datetime import datetime, timedelta
 import pyotp
-from flask_jwt_extended import set_refresh_cookies,create_refresh_token,set_access_cookies
-from flask import request, make_response, jsonify
-import datetime
+from server.models.user import User
 
 class VerifyOTP(Resource):
     def options(self):
-        return make_response(jsonify({"message":"Preflight OK"})) , 200
-    
+        return {"message": "Preflight OK"}, 200
+
     def post(self):
         data = request.get_json()
         if not data or not data.get('username') or not data.get('otp'):
@@ -22,32 +21,30 @@ class VerifyOTP(Resource):
         if not user:
             return {"error": "User not found"}, 404
 
-        # Check OTP expiry
-        if not user.otp_expiry or user.otp_expiry < datetime.datetime.utcnow():
+        if not user.otp_expiry or user.otp_expiry < datetime.utcnow():
             return {"error": "OTP expired. Please login again."}, 401
 
-        # Validate OTP
         totp = pyotp.TOTP(user.otp_secret)
         if not totp.verify(data['otp']):
             return {"error": "Invalid OTP"}, 401
 
-        # Generate tokens after successful OTP validation
+        # Create tokens
         access_token = create_access_token(
             identity={"id": user.id, "role": user.role},
             expires_delta=timedelta(minutes=15)
         )
-
         refresh_token = create_refresh_token(
             identity={"id": user.id, "role": user.role},
             expires_delta=timedelta(days=7)
         )
 
-        response = make_response(jsonify({
+        
+        response = make_response({
             "message": "Login successful",
             "access_token": access_token
-        }))
+        })
 
         set_access_cookies(response, access_token)
         set_refresh_cookies(response, refresh_token)
 
-        return response
+        return response  
