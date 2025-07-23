@@ -8,6 +8,8 @@ import datetime
 from server.utils.email_service import send_otp_email  
 
 class Login(Resource):
+    def options(self):
+        return{"message":"Preflight OK"},200
     def post(self):
         data = request.get_json()
         if not data or not data.get('username') or not data.get('password'):

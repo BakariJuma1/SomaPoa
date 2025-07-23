@@ -9,6 +9,7 @@ import pyotp
 from server.models.user import User
 
 class VerifyOTP(Resource):
+    
     def options(self):
         return {"message": "Preflight OK"}, 200
 

@@ -39,7 +39,10 @@ def create_app():
              "http://localhost:5173",
              "https://somapoa.netlify.app"
             #  "https://somapoa.onrender.com"
-             ]
+             ],
+         methods=["GET","POST","DELETE","OPTIONS"] , 
+         allow_headers=["Content-Type", "Authorization"]  ,
+         expose_headers=["Content-Type"]
          )
     app.config.from_prefixed_env() 
 
