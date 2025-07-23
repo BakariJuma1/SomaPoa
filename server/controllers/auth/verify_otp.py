@@ -7,7 +7,7 @@ from flask import request, jsonify, make_response
 from datetime import datetime, timedelta
 import pyotp
 from server.models.user import User
-from server.app import app
+
 class VerifyOTP(Resource):
     def options(self):
         return {"message": "Preflight OK"}, 200
@@ -56,7 +56,7 @@ class VerifyOTP(Resource):
             key='access_token',
             value=access_token,
             httponly=True,
-            secure=app.config['JWT_COOKIE_SECURE'],
+            
             samesite='Lax',
             max_age=900,
             path='/'
@@ -66,7 +66,6 @@ class VerifyOTP(Resource):
             key='refresh_token',
             value=refresh_token,
             httponly=True,
-            secure=app.config['JWT_COOKIE_SECURE'],
             samesite='Lax',
             max_age=604800,
             path='/'
