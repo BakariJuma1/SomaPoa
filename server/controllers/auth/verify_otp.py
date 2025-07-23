@@ -39,10 +39,10 @@ class VerifyOTP(Resource):
         )
 
         
-        response = make_response({
+        response = make_response(jsonify({
             "message": "Login successful",
             "access_token": access_token
-        })
+        }))
 
         set_access_cookies(response, access_token)
         set_refresh_cookies(response, refresh_token)
