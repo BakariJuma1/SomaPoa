@@ -7,9 +7,8 @@ from flask import request, jsonify, make_response
 from datetime import datetime, timedelta
 import pyotp
 from server.models.user import User
-
+from server.app import app
 class VerifyOTP(Resource):
-    
     def options(self):
         return {"message": "Preflight OK"}, 200
 
@@ -22,11 +21,15 @@ class VerifyOTP(Resource):
         if not user:
             return {"error": "User not found"}, 404
 
+        # Debug logging
+        print(f"OTP Verification Attempt - User: {user.username}")
+        print(f"OTP Expiry: {user.otp_expiry}, Current Time: {datetime.utcnow()}")
+
         if not user.otp_expiry or user.otp_expiry < datetime.utcnow():
             return {"error": "OTP expired. Please login again."}, 401
 
         totp = pyotp.TOTP(user.otp_secret)
-        if not totp.verify(data['otp']):
+        if not totp.verify(data['otp'], valid_window=1):  # Added valid_window
             return {"error": "Invalid OTP"}, 401
 
         # Create tokens
@@ -39,13 +42,34 @@ class VerifyOTP(Resource):
             expires_delta=timedelta(days=7)
         )
 
-        
         response = make_response(jsonify({
             "message": "Login successful",
-            "access_token": access_token
-        }))
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "role": user.role
+            }
+        }), 200)
 
-        set_access_cookies(response, access_token)
-        set_refresh_cookies(response, refresh_token)
+        # Enhanced cookie settings
+        response.set_cookie(
+            key='access_token',
+            value=access_token,
+            httponly=True,
+            secure=app.config['JWT_COOKIE_SECURE'],
+            samesite='Lax',
+            max_age=900,
+            path='/'
+        )
+        
+        response.set_cookie(
+            key='refresh_token',
+            value=refresh_token,
+            httponly=True,
+            secure=app.config['JWT_COOKIE_SECURE'],
+            samesite='Lax',
+            max_age=604800,
+            path='/'
+        )
 
-        return response  
+        return response
