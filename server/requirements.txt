@@ -2,7 +2,6 @@ alembic==1.14.1
 blinker==1.8.2
 certifi==2025.4.26
 click==8.1.8
--e git+ssh://git@github.com/BakariJuma1/cofffee-shop-code-challenge.git@dbc0bdb2a81db7de5715f8ec9a522cf3e44e8e7d#egg=coffee_shop
 distlib==0.3.9
 filelock==3.16.1
 Flask==3.0.3
@@ -25,3 +24,4 @@ typing_extensions==4.13.2
 virtualenv==20.30.0
 Werkzeug==3.0.6
 zipp==3.20.2
+cloudinary

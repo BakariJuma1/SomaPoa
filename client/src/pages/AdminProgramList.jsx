@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import useAuthFetch from "../hooks/useAuthFetch";
 import { useNavigate } from "react-router-dom";
 
-import "../assets/styles/adminprogramlist.css"; // Make sure your CSS file includes modal styles
+import "../assets/styles/adminprogramlist.css"; 
 
 const AdminProgramList = () => {
   const [programmes, setProgrammes] = useState([]);

@@ -4,6 +4,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask import request
 from server.extension import db
 from datetime import datetime
+from server.services.cloudinary_service import upload_file_to_cloudinary
 
 # Public: List all programs
 class ProgrammeList(Resource):
@@ -37,7 +38,7 @@ class ProgrammeDetail(Resource):
         return program.to_dict(), 200   
 
 # Admin only: Create a programme
-class ProgrammCreate(Resource):
+class ProgramCreate(Resource):
     @jwt_required()
     def post(self):
         identity = get_jwt_identity()
@@ -45,17 +46,24 @@ class ProgrammCreate(Resource):
         if identity['role'] != 'admin':
             return {"error": "Only admins can create bursary programmes"}, 403
 
-        data = request.get_json()
-        program_name = data.get('program_name')
-        ward = data.get('ward')
-        year = data.get('year')
-        description = data.get('description')
-        deadline = data.get('deadline')
-        image_url = data.get('image_url')
+        # Use form instead of JSON since we're sending a file
+        program_name = request.form.get('program_name')
+        ward = request.form.get('ward')
+        year = request.form.get('year')
+        description = request.form.get('description')
+        deadline = request.form.get('deadline')
+        image_file = request.files.get('image')
 
         if not program_name or not deadline:
-            return {"error": "Name and deadline are required"}, 400
-        
+            return {"error": "Program name and deadline are required"}, 400
+
+        image_url = None
+        if image_file:
+            try:
+                image_url = upload_file_to_cloudinary(image_file, folder="soma-poa/program-images")
+            except Exception:
+                return {"error": "Image upload failed"}, 500
+
         program = Program(
             program_name=program_name,
             ward=ward,

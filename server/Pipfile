@@ -8,11 +8,11 @@ flask = "*"
 flask-sqlalchemy = "*"
 flask-migrate = "*"
 sqlalchemy-serializer = "*"
-flask-restful = "*"
 python-dotenv = "*"
 psycopg2-binary = "*"
 pyotp = "*"
 sendgrid = "*"
+flask-restful = "*"
 
 [dev-packages]
 
