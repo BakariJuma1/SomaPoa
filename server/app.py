@@ -15,7 +15,7 @@ from server.controllers.applications.student_app_controller import ApplicationRe
 from server.controllers.applications.admin_app_controller import AllApplications,ApplicationUpdate,DeleteApplication,EligibleApplications,PendingApplications,AwardBursary
 
 # programmes
-from server.controllers.programmes.programme_controller import ProgrammeList,ProgrammCreate,ProgrammeDetail,ProgrammeHide,ProgrammeEdit,ProgrammeAdminList
+from server.controllers.programmes.programme_controller import ProgrammeList,ProgrammeCreate,ProgrammeDetail,ProgrammeHide,ProgrammeEdit,ProgrammeAdminList
 # users
 from server.controllers.users.users_controller import UserProfile,AllUsers
 from flask_cors import CORS
@@ -89,21 +89,21 @@ def create_app():
     def home():
        return {"message": "Welcome to Somapoa  API",}
     
-    # Test email route
-    @app.route('/test-email')
-    def test_email():
-        try:
-            msg = Message(
-                subject='Test Email from Somapoa',
-                recipients=['jumaisaq@gmail.com'],
-                body='This is a test email sent from the Somapoa API.',
-                sender=app.config['MAIL_DEFAULT_SENDER']
-            )
-            mail.send(msg)
-            return {"message": "Test email sent successfully."}
-        except Exception as e:
-            logging.exception("Email failed to send")
-            return {"error": str(e)}, 500
+    # # Test email route
+    # @app.route('/test-email')
+    # def test_email():
+    #     try:
+    #         msg = Message(
+    #             subject='Test Email from Somapoa',
+    #             recipients=['jumaisaq@gmail.com'],
+    #             body='This is a test email sent from the Somapoa API.',
+    #             sender=app.config['MAIL_DEFAULT_SENDER']
+    #         )
+    #         mail.send(msg)
+    #         return {"message": "Test email sent successfully."}
+    #     except Exception as e:
+    #         logging.exception("Email failed to send")
+    #         return {"error": str(e)}, 500
 
    
 
@@ -135,7 +135,7 @@ def create_app():
    
    # programmes
     api.add_resource(ProgrammeList,'/programmes')
-    api.add_resource(ProgrammCreate,'/admin/programmes/create') 
+    api.add_resource(ProgrammeCreate,'/admin/programmes/create') 
     api.add_resource(ProgrammeDetail,'/programmes/<int:id>')
     api.add_resource(ProgrammeHide,'/admin/programmes/<int:id>/hide')
     api.add_resource(ProgrammeEdit,'/admin/programmes/<int:id>/edit')
