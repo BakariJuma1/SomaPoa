@@ -66,7 +66,7 @@ def create_app():
     migrate.init_app(app, db)
     api = Api(app)
     jwt.init_app(app)
-    mail.init_app(app)
+   
 
 
    #  CRSF protection for cookies
