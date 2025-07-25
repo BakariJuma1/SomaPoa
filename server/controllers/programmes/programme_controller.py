@@ -38,7 +38,7 @@ class ProgrammeDetail(Resource):
         return program.to_dict(), 200   
 
 # Admin only: Create a programme
-class ProgramCreate(Resource):
+class ProgrammeCreate(Resource):
     @jwt_required()
     def post(self):
         identity = get_jwt_identity()
