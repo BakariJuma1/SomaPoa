@@ -15,7 +15,7 @@ from server.controllers.applications.student_app_controller import ApplicationRe
 from server.controllers.applications.admin_app_controller import AllApplications,ApplicationUpdate,DeleteApplication,EligibleApplications,PendingApplications,AwardBursary
 
 # programmes
-from server.controllers.programmes.programme_controller import ProgrammeList,ProgrammCreate,ProgrammeDetail,ProgrammeHide,ProgrammeEdit,ProgrammeAdminList
+from server.controllers.programmes.programme_controller import ProgrammeList,Programmcreate,ProgrammeDetail,ProgrammeHide,ProgrammeEdit,ProgrammeAdminList
 # users
 from server.controllers.users.users_controller import UserProfile,AllUsers
 from flask_cors import CORS
