@@ -4,7 +4,6 @@ from flask import jsonify, make_response
 from datetime import timedelta
 
 class RefreshToken(Resource):
-     # Require a valid refresh token
     @jwt_required(refresh=True) 
     def post(self):
         # Get identity from the refresh token
