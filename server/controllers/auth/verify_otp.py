@@ -9,9 +9,6 @@ import pyotp
 from server.models.user import User
 
 class VerifyOTP(Resource):
-    def options(self):
-        return {"message": "Preflight OK"}, 200
-
     def post(self):
         data = request.get_json()
         if not data or not data.get('username') or not data.get('otp'):
@@ -21,7 +18,6 @@ class VerifyOTP(Resource):
         if not user:
             return {"error": "User not found"}, 404
 
-        # Debug logging
         print(f"OTP Verification Attempt - User: {user.username}")
         print(f"OTP Expiry: {user.otp_expiry}, Current Time: {datetime.utcnow()}")
 
@@ -29,10 +25,9 @@ class VerifyOTP(Resource):
             return {"error": "OTP expired. Please login again."}, 401
 
         totp = pyotp.TOTP(user.otp_secret)
-        if not totp.verify(data['otp'], valid_window=1):  # Added valid_window
+        if not totp.verify(data['otp'], valid_window=1):
             return {"error": "Invalid OTP"}, 401
 
-        # Create tokens
         access_token = create_access_token(
             identity={"id": user.id, "role": user.role},
             expires_delta=timedelta(minutes=15)
@@ -51,24 +46,8 @@ class VerifyOTP(Resource):
             }
         }), 200)
 
-        # Enhanced cookie settings
-        response.set_cookie(
-            key='access_token',
-            value=access_token,
-            httponly=True,
-            
-            samesite='Lax',
-            max_age=900,
-            path='/'
-        )
-        
-        response.set_cookie(
-            key='refresh_token',
-            value=refresh_token,
-            httponly=True,
-            samesite='Lax',
-            max_age=604800,
-            path='/'
-        )
+        # ✅ Set cookies using Flask-JWT-Extended helpers
+        set_access_cookies(response, access_token)
+        set_refresh_cookies(response, refresh_token)
 
         return response
