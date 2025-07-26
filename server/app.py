@@ -7,16 +7,11 @@ from flask_cors import CORS
 from server.extension import db, migrate, jwt
 from datetime import timedelta
 import logging
-# routes
-from server.controllers.auth import auth_bp
-from server.controllers.applications import applications_bp
-from server.controllers.programmes.programme_controller import programme_controller_bp
-from server.controllers.users.users_controller import users_bp
+from server.routes import register_routes
 
 load_dotenv()
 def create_app():
-    app = Flask(__name__)
-    # set the route 
+    app = Flask(__name__) 
     CORS(app,
          supports_credentials=True,
          origins=[
@@ -41,9 +36,6 @@ def create_app():
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(seconds=int(os.getenv("JWT_ACCESS_TOKEN_EXPIRES", 900)))
     app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(seconds=int(os.getenv("JWT_REFRESH_TOKEN_EXPIRES", 604800)))
     app.config['JWT_COOKIE_CSRF_PROTECT']= False
-   
-
-
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -58,12 +50,6 @@ def create_app():
     @app.route('/')
     def home():
        return {"message": "Welcome to Somapoa  API",}
-    
-   #registering my routes
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(programme_controller_bp)
-    app.register_blueprint(applications_bp)
-    app.register_blueprint(users_bp)
-
+    register_routes(app)
     return app
 app = create_app()
