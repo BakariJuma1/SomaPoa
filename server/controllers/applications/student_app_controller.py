@@ -1,4 +1,4 @@
-from flask_restful import Resource
+from flask_restful import Resource,Api
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask import request
 from server.models.application import Application
@@ -7,11 +7,11 @@ from server.extension import db
 from datetime import datetime
 from server.services.cloudinary_service import upload_file_to_cloudinary
 from datetime import datetime
+from . import applications_bp
 import logging
 
 logger = logging.getLogger(__name__)
-
-# only students can apply
+api = Api(applications_bp)
 class ApplicationResource(Resource):
     @jwt_required()
     def post(self):
@@ -156,3 +156,7 @@ class SingleApplication(Resource):
             db.session.rollback()
             print("Error updating application:", e)
             return {"error": "Something went wrong updating the application."}, 500
+        
+api.add_resource(ApplicationResource,'/applications')
+api.add_resource(MyApplications,'/my-applications')
+api.add_resource(SingleApplication,'/my-applications/<int:id>')

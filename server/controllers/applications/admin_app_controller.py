@@ -1,16 +1,11 @@
-from flask_restful import Resource
+from flask_restful import Resource,Api
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask import request
 from server.models.application import Application
-from server.models.program import Program
-from server.models.user import User
 from server.extension import db
-from datetime import datetime
+from . import applications_bp
 
-
-# ============================== #
-#     Admin: View All Apps      #
-# ============================== #
+api = Api(applications_bp)
 class AllApplications(Resource):
     @jwt_required()
     def get(self):
@@ -35,9 +30,8 @@ class AllApplications(Resource):
         return result, 200
 
 
-# =================================== #
-#   Admin: Update Application Status  #
-# =================================== #
+
+#Admin: Update Application Status 
 class ApplicationUpdate(Resource):
     @jwt_required()
     def patch(self, id):
@@ -63,9 +57,8 @@ class ApplicationUpdate(Resource):
         }, 200
 
 
-# =============================== #
-#     Admin: Delete Application   #
-# =============================== #
+
+#Admin: Delete Application   
 class DeleteApplication(Resource):
     @jwt_required()
     def delete(self, id):
@@ -83,9 +76,8 @@ class DeleteApplication(Resource):
         return {"message": f"Application {id} deleted"}, 200
 
 
-# ======================================= #
-#   Admin: View Eligible Applications     #
-# ======================================= #
+
+#Admin: View Eligible Applications
 class EligibleApplications(Resource):
     @jwt_required()
     def get(self):
@@ -114,9 +106,7 @@ class EligibleApplications(Resource):
         return results, 200
 
 
-# ======================================= #
-#   Admin: View Pending Applications      #
-# ======================================= #
+#Admin: View Pending Applications 
 class PendingApplications(Resource):
     @jwt_required()
     def get(self):
@@ -139,9 +129,8 @@ class PendingApplications(Resource):
         } for app in apps], 200
 
 
-# ======================================= #
-#     Admin: Award Bursary to Student     #
-# ======================================= #
+
+#Admin: Award Bursary to Student
 class AwardBursary(Resource):
     @jwt_required()
     def patch(self, id):
@@ -164,3 +153,10 @@ class AwardBursary(Resource):
             "student": app.student.username,
             "programme": app.program.program_name
         }, 200
+
+api.add_resource(AllApplications,'/admin/applications')
+api.add_resource(PendingApplications, "/admin/applications/pending")
+api.add_resource(EligibleApplications, "/admin/applications/eligible")
+api.add_resource(ApplicationUpdate, "/admin/applications/<int:id>/update")
+api.add_resource(AwardBursary, "/admin/applications/<int:id>/award")
+api.add_resource(DeleteApplication, "/admin/applications/<int:id>/delete")

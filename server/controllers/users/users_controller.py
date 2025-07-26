@@ -1,9 +1,11 @@
-from flask_restful import Resource
-from flask import request
+from flask_restful import Resource,Api
+from flask import request,Blueprint
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from server.models.user import User
 from server.extension import db
 
+users_bp = Blueprint('users_controller',__name__)
+api= Api(users_bp)
 class UserProfile(Resource):
     @jwt_required()
     def get(self):
@@ -61,3 +63,6 @@ class AllUsers(Resource):
                 "created_at": user.created_at
             } for user in users
         ], 200
+
+api.add_resource(UserProfile,'/users/<int:id>')
+api.add_resource(AllUsers,'/admin/users')
