@@ -1,14 +1,15 @@
-from flask_restful import Resource
+from flask_restful import Resource,Api
 from flask_jwt_extended import (
     create_access_token, create_refresh_token,
-    set_access_cookies, set_refresh_cookies
-)
+    set_access_cookies, set_refresh_cookies)
 from flask import request, jsonify, make_response
 from datetime import datetime, timedelta
 import pyotp
 from server.models.user import User
 from server.extension import db
+from . import auth_bp
 
+api=Api(auth_bp)
 class VerifyOTP(Resource):
     def post(self):
         data = request.get_json()
@@ -55,3 +56,5 @@ class VerifyOTP(Resource):
         set_refresh_cookies(response, refresh_token)
 
         return response
+    
+api.add_resource(VerifyOTP,'/verify-otp')

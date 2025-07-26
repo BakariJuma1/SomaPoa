@@ -1,10 +1,13 @@
-from flask_restful import Resource
+from flask_restful import Resource,Api
 from server.extension import db
 from server.models.user import User
 from flask import request, jsonify
 from datetime import datetime, timedelta
 import pyotp
 from server.utils.email_service import send_otp_email
+from . import auth_bp
+
+api = Api(auth_bp)
 
 class Login(Resource):
     def options(self):
@@ -29,7 +32,7 @@ class Login(Resource):
             totp = pyotp.TOTP(user.otp_secret)
             otp_code = totp.now()  #
 
-            # DEBUG: Log OTP and time
+            # Log OTP and time
             print("Generated OTP:", otp_code)
             print("Generated at:", datetime.utcnow())
 
@@ -43,3 +46,6 @@ class Login(Resource):
             return {"message": "OTP sent to your email. Please verify to complete login."}, 200
 
         return {"error": "Invalid credentials"}, 401
+    
+    
+api.add_resource(Login,'/login')

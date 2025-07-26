@@ -6,10 +6,7 @@ from dotenv import load_dotenv
 # from server.models import db,User,Program,Application
 from server.extension import db, migrate, jwt
 # authentication
-from server.controllers.auth.login_controller import Login
-from server.controllers.auth.register_controller import Register
-from server.controllers.auth.logout_controller import Logout
-from server.controllers.auth.verify_otp import VerifyOTP
+from server.controllers.auth import auth_bp
 # student application
 from server.controllers.applications.student_app_controller import ApplicationResource,MyApplications,SingleApplication
 from server.controllers.applications.admin_app_controller import AllApplications,ApplicationUpdate,DeleteApplication,EligibleApplications,PendingApplications,AwardBursary
@@ -88,12 +85,12 @@ def create_app():
 
    #registering my routes
    # auth routes
-    api.add_resource(Login,'/login')
-    api.add_resource(Register,'/register')
-    api.add_resource(Logout,'/logout')
-    api.add_resource(RefreshToken,'/refresh')
-    api.add_resource(Me,'/me')
-    api.add_resource(VerifyOTP,'/verify-otp')
+    app.register_blueprint(auth_bp)
+    
+    
+    
+  
+  
 
    
 

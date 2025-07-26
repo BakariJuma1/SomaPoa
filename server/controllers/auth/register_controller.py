@@ -1,14 +1,14 @@
-from flask_restful import Resource
-from flask_jwt_extended import create_access_token
+from flask_restful import Resource,Api
 from server.extension import db
 from server.models.user import User
 from flask import request
 from datetime import timedelta
 import pyotp
-import os
 from server.utils.email_service import send_otp_email
+from . import auth_bp
 
 
+api =Api(auth_bp)
 class Register(Resource):
     def post(self):
         data = request.get_json()
@@ -47,3 +47,5 @@ class Register(Resource):
         db.session.commit()
 
         return {"message": "User created. OTP sent to email for verification"}
+    
+api.add_resource(Register,'/register')
