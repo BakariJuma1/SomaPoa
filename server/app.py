@@ -19,7 +19,7 @@ def create_app():
              "https://somapoa.netlify.app"
             #  "https://somapoa.onrender.com"
              ],
-         methods=["GET","POST","DELETE","OPTIONS","PUT"] , 
+         methods=["GET","POST","DELETE","OPTIONS","PUT","PATCH"] , 
          allow_headers=["Content-Type", "Authorization"]  ,
          expose_headers=["Content-Type"]
          )
