@@ -10,11 +10,9 @@ class Me(Resource):
         identity = get_jwt_identity()
         user = User.query.get(identity["id"])
 
-        if not user.email_verified:
+        if not user.otp_verified:
             return {"error": "Email not verified"}, 403
-        if not user.two_factor_verified:
-            return {"error": "2FA not completed"}, 403
-
+      
         return {
             "id": user.id,
             "role": user.role
