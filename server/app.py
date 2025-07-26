@@ -15,7 +15,7 @@ from server.controllers.applications.student_app_controller import ApplicationRe
 from server.controllers.applications.admin_app_controller import AllApplications,ApplicationUpdate,DeleteApplication,EligibleApplications,PendingApplications,AwardBursary
 
 # programmes
-from server.controllers.programmes.programme_controller import ProgrammeList,ProgrammeCreate,ProgrammeDetail,ProgrammeHide,ProgrammeEdit,ProgrammeAdminList
+from server.controllers.programmes.programme_controller import programme_controller_bp
 # users
 from server.controllers.users.users_controller import UserProfile,AllUsers
 from flask_cors import CORS
@@ -95,7 +95,6 @@ def create_app():
     api.add_resource(Me,'/me')
     api.add_resource(VerifyOTP,'/verify-otp')
 
-    # test api
    
 
 
@@ -113,13 +112,7 @@ def create_app():
     api.add_resource(DeleteApplication, "/admin/applications/<int:id>/delete")
    
    # programmes
-    api.add_resource(ProgrammeList,'/programmes')
-    api.add_resource(ProgrammeCreate,'/admin/programmes/create') 
-    api.add_resource(ProgrammeDetail,'/programmes/<int:id>')
-    api.add_resource(ProgrammeHide,'/admin/programmes/<int:id>/hide')
-    api.add_resource(ProgrammeEdit,'/admin/programmes/<int:id>/edit')
-    api.add_resource(ProgrammeAdminList,'/admin/programmes')
-
+    app.register_blueprint(programme_controller_bp)
 
    # users
     api.add_resource(UserProfile,'/users/<int:id>')

@@ -1,11 +1,13 @@
 from server.models.program import Program
-from flask_restful import Resource
+from flask_restful import Resource,Api
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from flask import request
+from flask import request,Blueprint
 from server.extension import db
 from datetime import datetime
 from server.services.cloudinary_service import upload_file_to_cloudinary
 
+programme_controller_bp = Blueprint("programme_controller",__name__)
+api = Api(programme_controller_bp)
 
 # Public: List all programs
 class ProgrammeList(Resource):
@@ -38,6 +40,7 @@ class ProgrammeDetail(Resource):
             return {"error": "Programme not found"}, 404
         return program.to_dict(), 200   
 
+
 # Admin only: Create a programme
 class ProgrammeCreate(Resource):
     @jwt_required()
@@ -47,7 +50,6 @@ class ProgrammeCreate(Resource):
         if identity['role'] != 'admin':
             return {"error": "Only admins can create bursary programmes"}, 403
 
-        # Use form instead of JSON since we're sending a file
         program_name = request.form.get('program_name')
         ward = request.form.get('ward')
         year = request.form.get('year')
@@ -81,7 +83,8 @@ class ProgrammeCreate(Resource):
             "message": "Program created successfully",
             "program": program.to_dict()
         }, 201
-# soft deleting  a program   # 
+    
+# soft deleting  a program  
 class ProgrammeHide(Resource):
     @jwt_required()
     def patch(self, id):
@@ -117,7 +120,7 @@ class ProgrammeEdit(Resource):
         db.session.commit()
         return {"message": "Programme updated"}, 200
     
-# Admin only: List all programmes (including hidden ones)
+# Admin only:List all programmes (including hidden ones)
 class ProgrammeAdminList(Resource):
     @jwt_required()
     def get(self):
@@ -143,3 +146,13 @@ class ProgrammeAdminList(Resource):
 
         return result, 200
     
+    
+#register my routes
+api.add_resource(ProgrammeList,'/programmes') 
+api.add_resource(ProgrammeCreate,'/admin/programmes/create') 
+api.add_resource(ProgrammeDetail,'/programmes/<int:id>')
+api.add_resource(ProgrammeHide,'/admin/programmes/<int:id>/hide')
+api.add_resource(ProgrammeEdit,'/admin/programmes/<int:id>/edit')
+api.add_resource(ProgrammeAdminList,'/admin/programmes')
+  
+  
