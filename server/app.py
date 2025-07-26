@@ -38,7 +38,7 @@ def create_app():
              "https://somapoa.netlify.app"
             #  "https://somapoa.onrender.com"
              ],
-         methods=["GET","POST","DELETE","OPTIONS"] , 
+         methods=["GET","POST","DELETE","OPTIONS","PUT"] , 
          allow_headers=["Content-Type", "Authorization"]  ,
          expose_headers=["Content-Type"]
          )
@@ -76,6 +76,10 @@ def create_app():
     os.makedirs("server/uploads/income", exist_ok=True)
     os.makedirs("server/uploads/academic", exist_ok=True)
     
+    @app.before_request
+    def handle_options():
+       if request.method == 'OPTIONS':
+          return '', 200
 
     @app.route('/')
     def home():

@@ -50,7 +50,7 @@ class VerifyOTP(Resource):
             }
         }), 200)
 
-        # ✅ Set cookies using Flask-JWT-Extended helpers
+      
         set_access_cookies(response, access_token)
         set_refresh_cookies(response, refresh_token)
 
