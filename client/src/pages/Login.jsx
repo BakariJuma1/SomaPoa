@@ -5,9 +5,10 @@ import "../assets/styles/login.css";
 
 const Login = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
-  const [otp, setOtp] = useState(""); // NEW: OTP input
-  const [showOtp, setShowOtp] = useState(false); // NEW: flag to show OTP field
+  const [otp, setOtp] = useState("");
+  const [showOtp, setShowOtp] = useState(false);
   const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const authFetch = useAuthFetch();
@@ -15,15 +16,23 @@ const Login = () => {
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     setError("");
+    setInfo("");
+  };
+
+  const handleOtpChange = (e) => {
+    setOtp(e.target.value);
+    setError("");
+    setInfo("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
+    setInfo("");
 
     if (!showOtp) {
-      // STEP 1: Submit username + password
+      // Step 1: Submit login credentials
       try {
         const res = await fetch("https://somapoa.onrender.com/login", {
           method: "POST",
@@ -32,17 +41,20 @@ const Login = () => {
           body: JSON.stringify(formData),
         });
 
-        if (!res.ok) throw new Error("Invalid username or password");
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data?.error || "Invalid username or password");
+        }
 
-        // OTP sent — show OTP field now
         setShowOtp(true);
-        setIsLoading(false);
+        setInfo("OTP sent to your email. Please enter it below.");
       } catch (err) {
         setError(err.message);
+      } finally {
         setIsLoading(false);
       }
     } else {
-      // STEP 2: Submit OTP
+      // Step 2: Submit OTP
       try {
         const res = await fetch("https://somapoa.onrender.com/verify-otp", {
           method: "POST",
@@ -51,8 +63,12 @@ const Login = () => {
           body: JSON.stringify({ username: formData.username, otp }),
         });
 
-        if (!res.ok) throw new Error("Invalid or expired OTP");
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data?.error || "Invalid or expired OTP");
+        }
 
+        // Fetch user session using protected route
         const sessionRes = await authFetch("https://somapoa.onrender.com/me");
         if (!sessionRes.ok) throw new Error("Failed to fetch user session");
 
@@ -63,10 +79,11 @@ const Login = () => {
         } else if (user.role === "admin") {
           navigate("/admin/dashboard");
         } else {
-          throw new Error("Unknown role. Contact support.");
+          throw new Error("Unknown role. Please contact support.");
         }
       } catch (err) {
         setError(err.message);
+      } finally {
         setIsLoading(false);
       }
     }
@@ -92,11 +109,20 @@ const Login = () => {
           </div>
         )}
 
+        {info && (
+          <div className="info-message">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+            </svg>
+            <span>{info}</span>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="login-form">
-          {!showOtp && (
+          {!showOtp ? (
             <>
               <div className="form-group">
-                <label htmlFor="username">Username</label>
+                <label htmlFor="username">Username or Email</label>
                 <input
                   type="text"
                   id="username"
@@ -121,9 +147,7 @@ const Login = () => {
                 />
               </div>
             </>
-          )}
-
-          {showOtp && (
+          ) : (
             <div className="form-group">
               <label htmlFor="otp">Enter OTP</label>
               <input
@@ -131,7 +155,7 @@ const Login = () => {
                 id="otp"
                 name="otp"
                 value={otp}
-                onChange={(e) => setOtp(e.target.value)}
+                onChange={handleOtpChange}
                 placeholder="Enter the OTP sent to your email"
                 required
               />
@@ -139,12 +163,20 @@ const Login = () => {
           )}
 
           <button type="submit" className="login-button" disabled={isLoading}>
-            {isLoading ? <div className="spinner"></div> : showOtp ? "Verify OTP" : "Log In"}
+            {isLoading ? (
+              <div className="spinner"></div>
+            ) : showOtp ? (
+              "Verify OTP"
+            ) : (
+              "Log In"
+            )}
           </button>
         </form>
 
         <div className="login-footer">
-          <p>Don't have an account? <Link to="/register">Sign up</Link></p>
+          <p>
+            Don't have an account? <Link to="/register">Sign up</Link>
+          </p>
           <Link to="/forgot-password" className="forgot-password">
             Forgot password?
           </Link>
