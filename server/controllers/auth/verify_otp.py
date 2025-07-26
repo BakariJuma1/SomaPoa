@@ -7,6 +7,7 @@ from flask import request, jsonify, make_response
 from datetime import datetime, timedelta
 import pyotp
 from server.models.user import User
+from server.extension import db
 
 class VerifyOTP(Resource):
     def post(self):
@@ -27,6 +28,9 @@ class VerifyOTP(Resource):
         totp = pyotp.TOTP(user.otp_secret)
         if not totp.verify(data['otp'], valid_window=1):
             return {"error": "Invalid OTP"}, 401
+        
+        user.otp_verified = True
+        db.session.commit()
 
         access_token = create_access_token(
             identity={"id": user.id, "role": user.role},
