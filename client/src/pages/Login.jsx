@@ -1,30 +1,32 @@
-import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import useAuthFetch from "../hooks/useAuthFetch";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import authFetch from "../hooks/useAuthFetch";
+import { useAuth } from "../context/AuthProvider"; // ✅ Get context to update user
 import "../assets/styles/login.css";
 
 const Login = () => {
+  const { setUser } = useAuth(); // ✅ Set user after successful login
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({ username: "", password: "" });
-  const [otp, setOtp] = useState("");
-  const [showOtp, setShowOtp] = useState(false);
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
+  const [otp, setOtp] = useState("");
+  const [showOtp, setShowOtp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [resendLoading, setResendLoading] = useState(false);
 
-  const navigate = useNavigate();
-  const authFetch = useAuthFetch();
+  // Automatically focus OTP input when it's shown
+  useEffect(() => {
+    if (showOtp) {
+      document.getElementById("otpInput")?.focus();
+    }
+  }, [showOtp]);
 
   const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    setError("");
-    setInfo("");
-  };
-
-  const handleOtpChange = (e) => {
-    setOtp(e.target.value);
-    setError("");
-    setInfo("");
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -35,6 +37,7 @@ const Login = () => {
 
     try {
       if (!showOtp) {
+        // First step: send username/password
         const res = await fetch("https://somapoa.onrender.com/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -44,17 +47,22 @@ const Login = () => {
 
         if (!res.ok) {
           const data = await res.json();
-          throw new Error(data?.error || "Invalid username or password");
+          throw new Error(data?.error || "Login failed. Please try again.");
         }
 
+        // OTP sent successfully
+        setInfo("OTP has been sent to your email.");
         setShowOtp(true);
-        setInfo("OTP sent to your email. Please enter it below.");
       } else {
+        // Second step: verify OTP
         const res = await fetch("https://somapoa.onrender.com/verify-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ username: formData.username, otp }),
+          body: JSON.stringify({
+            username: formData.username,
+            otp: otp,
+          }),
         });
 
         if (!res.ok) {
@@ -62,17 +70,23 @@ const Login = () => {
           throw new Error(data?.error || "Invalid or expired OTP");
         }
 
+        // OTP verified → fetch user session
         const sessionRes = await authFetch("https://somapoa.onrender.com/me");
-        if (!sessionRes.ok) throw new Error("Failed to fetch user session");
+        if (!sessionRes.ok) {
+          throw new Error("Failed to fetch user session.");
+        }
 
         const user = await sessionRes.json();
 
+        setUser(user); // ✅ Update context
+
+        // Redirect based on role
         if (user.role === "student") {
           navigate("/dashboard", { replace: true });
         } else if (user.role === "admin") {
           navigate("/admin/dashboard");
         } else {
-          throw new Error("Unknown role. Please contact support.");
+          throw new Error("Unknown role. Contact support.");
         }
       }
     } catch (err) {
@@ -82,136 +96,51 @@ const Login = () => {
     }
   };
 
-  const handleResendOtp = async () => {
-    setResendLoading(true);
-    setError("");
-    setInfo("");
-
-    try {
-      const res = await fetch("https://somapoa.onrender.com/resend-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ username: formData.username }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data?.error || "Failed to resend OTP");
-      }
-
-      setInfo("OTP resent to your email.");
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setResendLoading(false);
-    }
-  };
-
   return (
-    <div className="login-page">
-      <div className="login-container">
-        <div className="login-header">
-          <Link to="/" className="logo">
-            <span className="logo-highlight">Soma</span>Poa
-          </Link>
-          <h2>Welcome Back</h2>
-          <p>Sign in to access your account</p>
-        </div>
+    <div className="login-container">
+      <form className="login-form" onSubmit={handleSubmit}>
+        <h2>{showOtp ? "Enter OTP" : "Login"}</h2>
 
-        {error && (
-          <div className="error-message">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z" />
-            </svg>
-            <span>{error}</span>
-          </div>
+        {!showOtp && (
+          <>
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              value={formData.username}
+              onChange={handleChange}
+              required
+            />
+
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+          </>
         )}
 
-        {info && (
-          <div className="info-message">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-            </svg>
-            <span>{info}</span>
-          </div>
+        {showOtp && (
+          <input
+            id="otpInput"
+            type="text"
+            placeholder="Enter OTP"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            required
+          />
         )}
 
-        <form onSubmit={handleSubmit} className="login-form">
-          {!showOtp ? (
-            <>
-              <div className="form-group">
-                <label htmlFor="username">Username or Email</label>
-                <input
-                  type="text"
-                  id="username"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  placeholder="Enter your username"
-                  required
-                />
-              </div>
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? "Please wait..." : showOtp ? "Verify OTP" : "Login"}
+        </button>
 
-              <div className="form-group">
-                <label htmlFor="password">Password</label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="Enter your password"
-                  required
-                />
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="form-group">
-                <label htmlFor="otp">Enter OTP</label>
-                <input
-                  type="text"
-                  id="otp"
-                  name="otp"
-                  value={otp}
-                  onChange={handleOtpChange}
-                  placeholder="Enter the OTP sent to your email"
-                  required
-                />
-              </div>
-
-              <button
-                type="button"
-                className="resend-otp-button"
-                onClick={handleResendOtp}
-                disabled={resendLoading}
-              >
-                {resendLoading ? "Resending..." : "Resend OTP"}
-              </button>
-            </>
-          )}
-
-          <button type="submit" className="login-button" disabled={isLoading}>
-            {isLoading ? (
-              <div className="spinner"></div>
-            ) : showOtp ? (
-              "Verify OTP"
-            ) : (
-              "Log In"
-            )}
-          </button>
-        </form>
-
-        <div className="login-footer">
-          <p>
-            Don't have an account? <Link to="/register">Sign up</Link>
-          </p>
-          <Link to="/forgot-password" className="forgot-password">
-            Forgot password?
-          </Link>
-        </div>
-      </div>
+        {error && <p className="error-msg">{error}</p>}
+        {info && <p className="info-msg">{info}</p>}
+      </form>
     </div>
   );
 };
