@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import authFetch from "../hooks/useAuthFetch";
-import { useAuth } from "../context/AuthProvider"; // ✅ Get context to update user
+import { useAuth } from "../context/AuthProvider";
 import "../assets/styles/login.css";
 
 const Login = () => {
-  const { setUser } = useAuth(); // ✅ Set user after successful login
+  const { setUser, isLoading: isAuthLoading } = useAuth(); // ✅ Use context loading state
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({ username: "", password: "" });
@@ -13,31 +12,20 @@ const Login = () => {
   const [info, setInfo] = useState("");
   const [otp, setOtp] = useState("");
   const [showOtp, setShowOtp] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Automatically focus OTP input when it's shown
   useEffect(() => {
-    if (showOtp) {
-      document.getElementById("otpInput")?.focus();
-    }
+    if (showOtp) document.getElementById("otpInput")?.focus();
   }, [showOtp]);
-
-  const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+    setIsSubmitting(true);
     setError("");
-    setInfo("");
 
     try {
       if (!showOtp) {
-        // First step: send username/password
+        // Step 1: Send username/password
         const res = await fetch("https://somapoa.onrender.com/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -50,19 +38,15 @@ const Login = () => {
           throw new Error(data?.error || "Login failed. Please try again.");
         }
 
-        // OTP sent successfully
         setInfo("OTP has been sent to your email.");
         setShowOtp(true);
       } else {
-        // Second step: verify OTP
+        // Step 2: Verify OTP
         const res = await fetch("https://somapoa.onrender.com/verify-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({
-            username: formData.username,
-            otp: otp,
-          }),
+          body: JSON.stringify({ username: formData.username, otp }),
         });
 
         if (!res.ok) {
@@ -70,29 +54,23 @@ const Login = () => {
           throw new Error(data?.error || "Invalid or expired OTP");
         }
 
-        // OTP verified → fetch user session
-        const sessionRes = await authFetch("https://somapoa.onrender.com/me");
-        if (!sessionRes.ok) {
-          throw new Error("Failed to fetch user session.");
-        }
-
-        const user = await sessionRes.json();
+        // Fetch updated user data
+        const userRes = await fetch("https://somapoa.onrender.com/me", {
+          credentials: "include",
+        });
+        const user = await userRes.json();
 
         setUser(user); // ✅ Update context
 
         // Redirect based on role
-        if (user.role === "student") {
-          navigate("/dashboard", { replace: true });
-        } else if (user.role === "admin") {
-          navigate("/admin/dashboard");
-        } else {
-          throw new Error("Unknown role. Contact support.");
-        }
+        navigate(user.role === "admin" ? "/admin/dashboard" : "/dashboard", {
+          replace: true,
+        });
       }
     } catch (err) {
       setError(err.message);
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -101,29 +79,28 @@ const Login = () => {
       <form className="login-form" onSubmit={handleSubmit}>
         <h2>{showOtp ? "Enter OTP" : "Login"}</h2>
 
-        {!showOtp && (
+        {!showOtp ? (
           <>
             <input
               type="text"
               name="username"
               placeholder="Username"
               value={formData.username}
-              onChange={handleChange}
+              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
               required
+              disabled={isSubmitting || isAuthLoading}
             />
-
             <input
               type="password"
               name="password"
               placeholder="Password"
               value={formData.password}
-              onChange={handleChange}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               required
+              disabled={isSubmitting || isAuthLoading}
             />
           </>
-        )}
-
-        {showOtp && (
+        ) : (
           <input
             id="otpInput"
             type="text"
@@ -131,11 +108,15 @@ const Login = () => {
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
             required
+            disabled={isSubmitting}
           />
         )}
 
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? "Please wait..." : showOtp ? "Verify OTP" : "Login"}
+        <button
+          type="submit"
+          disabled={isSubmitting || isAuthLoading}
+        >
+          {isSubmitting ? "Processing..." : showOtp ? "Verify OTP" : "Login"}
         </button>
 
         {error && <p className="error-msg">{error}</p>}
