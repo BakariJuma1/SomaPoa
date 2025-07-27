@@ -13,6 +13,7 @@ import Navbar from "./components/Navbar"
 import AdminCreateProgram from "./pages/AdminCreateProgram"
 import AdminProgramList from "./pages/AdminProgramList"
 import ApplicationDetails from "./pages/ApplicationDetails"
+import Profile from "./pages/Profile"
 
 function App() {
   return (
@@ -65,34 +66,40 @@ function App() {
             </RequireAuth>
           }
         />
-        
+        <Route
+          path="/profile"
+          element={
+            <RequireAuth roles={["student", "admin"]}>
+              <Profile />
+            </RequireAuth>
+          }
+        />
 
         {/* Protected Admin Routes */}
-<Route
-  path="/admin/dashboard"
-  element={
-    <RequireAuth roles={["admin"]}>
-      <AdminDashboard />
-    </RequireAuth>
-  }
-/>
-<Route
-  path="/admin/programmes"
-  element={
-    <RequireAuth roles={["admin"]}>
-      <AdminProgramList />
-    </RequireAuth>
-  }
-/>
+        <Route
+          path="/admin/dashboard"
+          element={
+            <RequireAuth roles={["admin"]}>
+              <AdminDashboard />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/admin/programmes"
+          element={
+            <RequireAuth roles={["admin"]}>
+              <AdminProgramList />
+            </RequireAuth>
+          }
+        />
         <Route
           path="/admin/create-program"
           element={
-          <RequireAuth roles={["admin"]}>
-             <AdminCreateProgram />
-          </RequireAuth>
-  }
-/>
-
+            <RequireAuth roles={["admin"]}>
+              <AdminCreateProgram />
+            </RequireAuth>
+          }
+        />
       </Routes>
     </>
   )
