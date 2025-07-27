@@ -1,31 +1,20 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthProvider"; // ✅ Import useAuth
 import "../assets/styles/navbar.css";
 
 const Navbar = () => {
-  const [user, setUser] = useState(null);
+  const { user, setUser } = useAuth(); // ✅ use global context instead of local state
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    fetch("https://somapoa.onrender.com/me", {
-      credentials: "include",
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Not logged in");
-        return res.json();
-      })
-      .then((data) => setUser(data))
-      .catch(() => setUser(null));
-  }, []);
 
   const handleLogout = () => {
     fetch("https://somapoa.onrender.com/logout", {
       method: "POST",
       credentials: "include",
     }).then(() => {
-      setUser(null);
+      setUser(null); // ✅ update global user state
       navigate("/login");
       setMobileMenuOpen(false);
       setDropdownOpen(false);
