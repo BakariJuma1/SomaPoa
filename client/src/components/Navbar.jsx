@@ -5,6 +5,7 @@ import "../assets/styles/navbar.css";
 const Navbar = () => {
   const [user, setUser] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,11 +28,23 @@ const Navbar = () => {
       setUser(null);
       navigate("/login");
       setMobileMenuOpen(false);
+      setDropdownOpen(false);
     });
   };
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
+    if (dropdownOpen) setDropdownOpen(false);
+  };
+
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
+  };
+
+  const getInitials = (name) => {
+    if (!name) return "U";
+    const names = name.split(" ");
+    return names.map((n) => n[0]).join("").toUpperCase();
   };
 
   return (
@@ -41,8 +54,7 @@ const Navbar = () => {
           <span className="logo-highlight">Soma</span>Poa
         </NavLink>
 
-        {/* Mobile menu button */}
-        <button 
+        <button
           className="mobile-menu-button"
           onClick={toggleMobileMenu}
           aria-label="Toggle navigation"
@@ -53,7 +65,7 @@ const Navbar = () => {
         </button>
 
         <div className={`nav-links ${mobileMenuOpen ? "open" : ""}`}>
-          <NavLink to="/" exact="true" onClick={() => setMobileMenuOpen(false)}>
+          <NavLink to="/" onClick={() => setMobileMenuOpen(false)}>
             Home
           </NavLink>
 
@@ -80,17 +92,44 @@ const Navbar = () => {
           )}
 
           {user?.role === "admin" && (
-            <>
-              <NavLink to="/admin/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                Admin Dashboard
-              </NavLink>
-            </>
+            <NavLink to="/admin/dashboard" onClick={() => setMobileMenuOpen(false)}>
+              Admin Dashboard
+            </NavLink>
           )}
 
+          {/* Profile Avatar Dropdown */}
           {user && (
-            <button className="logout-button" onClick={handleLogout}>
-              Logout
-            </button>
+            <div className="profile-avatar-container">
+              <button
+                className="profile-avatar"
+                onClick={toggleDropdown}
+                aria-label="User menu"
+              >
+                {getInitials(user.username || user.name)}
+              </button>
+
+              {dropdownOpen && (
+                <div className="profile-dropdown">
+                  <div className="dropdown-header">
+                    <div className="dropdown-avatar">
+                      {getInitials(user.username || user.name)}
+                    </div>
+                    <div>
+                      <div className="dropdown-name">{user.username || "User"}</div>
+                      {user.email && (
+                        <div className="dropdown-email">{user.email}</div>
+                      )}
+                    </div>
+                  </div>
+                  <NavLink to="/profile" onClick={() => setDropdownOpen(false)}>
+                    Profile
+                  </NavLink>
+                  <button className="dropdown-item logout" onClick={handleLogout}>
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>
