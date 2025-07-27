@@ -10,6 +10,8 @@ const Login = () => {
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+
   const navigate = useNavigate();
   const authFetch = useAuthFetch();
 
@@ -31,9 +33,8 @@ const Login = () => {
     setError("");
     setInfo("");
 
-    if (!showOtp) {
-      // Step 1: Submit login credentials
-      try {
+    try {
+      if (!showOtp) {
         const res = await fetch("https://somapoa.onrender.com/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -48,14 +49,7 @@ const Login = () => {
 
         setShowOtp(true);
         setInfo("OTP sent to your email. Please enter it below.");
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    } else {
-      // Step 2: Submit OTP
-      try {
+      } else {
         const res = await fetch("https://somapoa.onrender.com/verify-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -68,7 +62,6 @@ const Login = () => {
           throw new Error(data?.error || "Invalid or expired OTP");
         }
 
-        // Fetch user session using protected route
         const sessionRes = await authFetch("https://somapoa.onrender.com/me");
         if (!sessionRes.ok) throw new Error("Failed to fetch user session");
 
@@ -81,11 +74,37 @@ const Login = () => {
         } else {
           throw new Error("Unknown role. Please contact support.");
         }
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
       }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setResendLoading(true);
+    setError("");
+    setInfo("");
+
+    try {
+      const res = await fetch("https://somapoa.onrender.com/resend-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ username: formData.username }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Failed to resend OTP");
+      }
+
+      setInfo("OTP resent to your email.");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -148,18 +167,29 @@ const Login = () => {
               </div>
             </>
           ) : (
-            <div className="form-group">
-              <label htmlFor="otp">Enter OTP</label>
-              <input
-                type="text"
-                id="otp"
-                name="otp"
-                value={otp}
-                onChange={handleOtpChange}
-                placeholder="Enter the OTP sent to your email"
-                required
-              />
-            </div>
+            <>
+              <div className="form-group">
+                <label htmlFor="otp">Enter OTP</label>
+                <input
+                  type="text"
+                  id="otp"
+                  name="otp"
+                  value={otp}
+                  onChange={handleOtpChange}
+                  placeholder="Enter the OTP sent to your email"
+                  required
+                />
+              </div>
+
+              <button
+                type="button"
+                className="resend-otp-button"
+                onClick={handleResendOtp}
+                disabled={resendLoading}
+              >
+                {resendLoading ? "Resending..." : "Resend OTP"}
+              </button>
+            </>
           )}
 
           <button type="submit" className="login-button" disabled={isLoading}>
