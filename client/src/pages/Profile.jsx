@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import{ useState } from "react";
 import { useAuth } from "../context/AuthProvider";
 import "../assets/styles/profile.css"; // Assuming you're putting styles here
 
