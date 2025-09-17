@@ -16,7 +16,7 @@ def send_otp_email(user, otp_code):
     <html>
     <body>
         <h1>Email Verification</h1>
-        <p>Hello {user.name},</p>
+        <p>Hello {user.username},</p>
         <p>Please verify your email using this 6-digit code:</p>
         <h2 style="font-size: 24px; letter-spacing: 3px; margin: 20px 0;">
             {otp_code}
