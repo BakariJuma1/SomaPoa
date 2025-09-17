@@ -57,7 +57,7 @@ with app.app_context():
 
     # Create Programs
     programs = []
-    for i in range(20):
+    for i in range(15):
         program = Program(
             name=fake.bs().title(),
             description=fake.text(max_nb_chars=200),

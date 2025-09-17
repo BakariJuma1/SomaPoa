@@ -1,45 +1,45 @@
-import sib_api_v3_sdk
-from sib_api_v3_sdk.rest import ApiException
+import resend
 import os
 import logging
 
 logger = logging.getLogger(__name__)
 
-def send_otp_email(to_email, otp_code):
-    configuration = sib_api_v3_sdk.Configuration()
-    configuration.api_key['api-key'] = os.getenv("BREVO_API_KEY")
+resend.api_key = os.getenv("RESEND_API_KEY")
 
-    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
-
-    sender = {
-        "email": os.getenv("MAIL_DEFAULT_SENDER"),
-        "name": "SomaPoa"
-    }
-
-    to = [{
-        "email": to_email,
-        "name": to_email.split('@')[0].capitalize()
-    }]
-
+def send_otp_email(user, otp_code):
+    """
+    Send a verification email using Resend
+    """
+    sender = os.getenv("MAIL_DEFAULT_SENDER")
     subject = "Your SomaPoa OTP Verification Code"
     html_content = f"""
     <html>
     <body>
-        <p><strong>Your verification code is: {otp_code}</strong></p>
-        <p>This code will expire in 30 seconds.</p>
+        <h1>Email Verification</h1>
+        <p>Hello {user.name},</p>
+        <p>Please verify your email using this 6-digit code:</p>
+        <h2 style="font-size: 24px; letter-spacing: 3px; margin: 20px 0;">
+            {otp_code}
+        </h2>
+        <p>This code is valid for 4 minutes.</p>
+        <p>If you did not request this, please ignore this email.</p>
+        <p>Thank you!</p>
+        <p>Best regards,<br>SomaPoa Team</p>
+        <p><small>This is an automated message, please do not reply.</small></p>
     </body>
     </html>
     """
 
-    send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
-        to=to,
-        sender=sender,
-        subject=subject,
-        html_content=html_content
-    )
-
     try:
-        response = api_instance.send_transac_email(send_smtp_email)
-        logger.info(f"OTP email sent to {to_email}. Response: {response}")
-    except ApiException as e:
-        logger.error(f"Failed to send OTP email to {to_email}. Brevo error: {e}")
+        print(f"[DEBUG] About to send email to: {user.email!r}, name: {user.name!r}")
+        logger.info(f"[DEBUG] About to send email to: {user.email!r}, name: {user.name!r}")
+
+        response = resend.Emails.send({
+            "from": sender,
+            "to": user.email,
+            "subject": subject,
+            "html": html_content,
+        })
+        logger.info(f"Verification email sent to {user.email}. Response: {response}")
+    except Exception as e:
+        logger.error(f"Failed to send verification email to {user.email}. Resend error: {e}")
