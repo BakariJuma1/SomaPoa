@@ -53,7 +53,7 @@ const Register = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            email: formData.email,
+            username:formData.username || formData.email, 
             otp: formData.otp,
           }),
         });
@@ -65,7 +65,7 @@ const Register = () => {
 
         // ✅ Success
         setMessage("Account verified successfully. Redirecting...");
-        setTimeout(() => navigate("/login"), 1500); // small delay for UX
+        setTimeout(() => navigate("/login"), 1500); 
       }
     } catch (err) {
       setError(err.message);
