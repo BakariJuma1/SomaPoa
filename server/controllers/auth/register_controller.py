@@ -1,14 +1,13 @@
-from flask_restful import Resource,Api
+from flask_restful import Resource, Api
 from server.extension import db
 from server.models.user import User
 from flask import request
-from datetime import timedelta
+from datetime import datetime, timedelta
 import pyotp
 from server.utils.email_service import send_otp_email
 from . import auth_bp
 
-
-api =Api(auth_bp)
+api = Api(auth_bp)
 
 class Register(Resource):
     def post(self):
@@ -21,19 +20,25 @@ class Register(Resource):
         password = data['password']
         role = data.get('role', 'student')
 
+        # check duplicate user
         if User.query.filter((User.username == username) | (User.email == email)).first():
             return {"error": "User already exists"}, 409
 
+        # generate OTP secret & code
         otp_secret = pyotp.random_base32()
         totp = pyotp.TOTP(otp_secret)
         otp_code = totp.now()
 
-        # create user object in memory
+        # set OTP expiry (5 minutes)
+        otp_expiry = datetime.utcnow() + timedelta(minutes=5)
+
+        # create user instance
         user = User(
             username=username,
             email=email,
             role=role,
             otp_secret=otp_secret,
+            otp_expiry=otp_expiry,
             otp_verified=False
         )
         user.set_password(password)
@@ -44,10 +49,13 @@ class Register(Resource):
         except Exception as e:
             return {"error": f"Failed to send OTP email: {str(e)}"}, 500
 
-        # save user only if email sending works
+        # save user only if email sending succeeds
         db.session.add(user)
         db.session.commit()
 
-        return {"message": "User created. OTP sent to email for verification"}, 201
+        return {
+            "message": "User created. OTP sent to email for verification",
+            "otp_expiry": otp_expiry.isoformat()  # optional for debugging
+        }, 201
 
-api.add_resource(Register,'/register')
+api.add_resource(Register, '/register')
