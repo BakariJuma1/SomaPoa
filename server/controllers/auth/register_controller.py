@@ -9,6 +9,7 @@ from . import auth_bp
 
 
 api =Api(auth_bp)
+
 class Register(Resource):
     def post(self):
         data = request.get_json()
@@ -27,13 +28,7 @@ class Register(Resource):
         totp = pyotp.TOTP(otp_secret)
         otp_code = totp.now()
 
-        #  send email first before saving user
-        try:
-            send_otp_email(user, otp_code)
-        except Exception as e:
-            return {"error": f"Failed to send OTP email: {str(e)}"}, 500
-
-        #  save user if email is sent successfully
+        # create user object in memory
         user = User(
             username=username,
             email=email,
@@ -43,9 +38,16 @@ class Register(Resource):
         )
         user.set_password(password)
 
+        # try sending email
+        try:
+            send_otp_email(user, otp_code)
+        except Exception as e:
+            return {"error": f"Failed to send OTP email: {str(e)}"}, 500
+
+        # save user only if email sending works
         db.session.add(user)
         db.session.commit()
 
-        return {"message": "User created. OTP sent to email for verification"}
-    
+        return {"message": "User created. OTP sent to email for verification"}, 201
+
 api.add_resource(Register,'/register')
