@@ -41,7 +41,7 @@ class Login(Resource):
             db.session.commit()
 
             # Send via email
-            send_otp_email(user.email, otp_code)
+            send_otp_email(user, otp_code)
 
             return {"message": "OTP sent to your email. Please verify to complete login."}, 200
 
@@ -77,7 +77,7 @@ class ResendOTP(Resource):
         user.otp_expiry = now + timedelta(minutes=5)
         db.session.commit()
 
-        send_otp_email(user.email, otp_code)
+        send_otp_email(user, otp_code)
 
         return {"message": "OTP resent to your email."}, 200    
     

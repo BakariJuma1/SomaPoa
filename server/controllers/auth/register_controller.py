@@ -29,7 +29,7 @@ class Register(Resource):
 
         #  send email first before saving user
         try:
-            send_otp_email(email, otp_code)
+            send_otp_email(user, otp_code)
         except Exception as e:
             return {"error": f"Failed to send OTP email: {str(e)}"}, 500
 
