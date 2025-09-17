@@ -31,8 +31,8 @@ def send_otp_email(user, otp_code):
     """
 
     try:
-        print(f"[DEBUG] About to send email to: {user.email!r}, name: {user.name!r}")
-        logger.info(f"[DEBUG] About to send email to: {user.email!r}, name: {user.name!r}")
+        print(f"[DEBUG] About to send email to: {user.email!r}, name: {user.username!r}")
+        logger.info(f"[DEBUG] About to send email to: {user.email!r}, name: {user.username!r}")
 
         response = resend.Emails.send({
             "from": sender,
